@@ -118,7 +118,7 @@ public class HomePresenter implements HomeContract.Presenter {
         imgDataList = sortImgDataList(imgDataList);
         downloadFile(imgDataList);
     }
-
+//对轮播图片列表进行排序
     private List<PicData.PicDataBean> sortImgDataList(List<PicData.PicDataBean> imgList)
     {
         Collections.sort(imgList, new Comparator<PicData.PicDataBean>(){
