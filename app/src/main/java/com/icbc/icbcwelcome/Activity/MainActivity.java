@@ -23,17 +23,23 @@ import com.youth.banner.loader.ImageLoader;
 import java.util.ArrayList;
 import java.util.List;
 
+public class MainActivity extends BaseActivity implements HomeContract.View {
 
-public class MainActivity extends BaseActivity implements HomeContract.View{
-
+    private class GlideImageLoader extends ImageLoader {
+        @Override
+        public void displayImage(Context context, Object path, ImageView imageView) {
+            //具体方法内容自己去选择，次方法是为了减少banner过多的依赖第三方包，所以将这个权限开放给使用者去选择
+            Glide.with(context.getApplicationContext())
+                    .load(path)
+                    .into(imageView);
+        }
+    }
 
     Banner banner;
     private ImageView showImg;
     private AlertDialog mDialog;//等待对话框
-    private List<PicData.PicDataBean>  picDatalist=new ArrayList<>();
+    private List<PicData.PicDataBean> picDatalist = new ArrayList<>();
     private HomeContract.Presenter mPresenter;
-
-
 
     @Override
     public void setPresenter(HomeContract.Presenter presenter) {
@@ -62,17 +68,6 @@ public class MainActivity extends BaseActivity implements HomeContract.View{
         });
     }
 
-
-    private class GlideImageLoader extends ImageLoader {
-        @Override
-        public void displayImage(Context context, Object path, ImageView imageView) {
-            //具体方法内容自己去选择，次方法是为了减少banner过多的依赖第三方包，所以将这个权限开放给使用者去选择
-            Glide.with(context.getApplicationContext())
-                    .load(path)
-                    .into(imageView);
-        }
-    }
-
     ///////////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,23 +75,18 @@ public class MainActivity extends BaseActivity implements HomeContract.View{
         setContentView(R.layout.activity_main);
         mPresenter = new HomePresenter(this);
         banner = (Banner) findViewById(R.id.banner);
-
         initView();
     }
 
 
-
     private void initView() {
-        picDatalist = mPresenter.loadBannerData();
-        initBanner(picDatalist);
+        mPresenter.loadBannerData();
+        initBanner();
     }
 
-    public void initBanner(List<PicData.PicDataBean> picDatalist) {
-        List<String> list=new ArrayList<>();
-        for (PicData.PicDataBean pic:picDatalist){
-            list.add(constants.LOCATPATH + pic.getFileName());
-
-        }
+    public void initBanner() {
+        List<String> list = new ArrayList<>();
+        list.add(constants.LOCATPATH + "loading.jpg");
         banner.setBannerStyle(BannerConfig.NOT_INDICATOR);
         banner.setDelayTime(5000)
                 .setImages(list)
@@ -104,4 +94,15 @@ public class MainActivity extends BaseActivity implements HomeContract.View{
                 .start();
     }
 
+    public void updateBanner(List<PicData.PicDataBean>  picDatalist) {
+        //
+        List<String> list = new ArrayList<>();
+        for (PicData.PicDataBean pic : picDatalist) {
+            list.add(constants.LOCATPATH + pic.getFileName());
+
+        }
+        banner.stopAutoPlay();
+        banner.update(list);
+        banner.startAutoPlay();
+    }
 }

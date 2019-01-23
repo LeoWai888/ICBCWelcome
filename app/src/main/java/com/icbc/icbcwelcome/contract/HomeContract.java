@@ -9,11 +9,11 @@ import java.util.List;
 public interface HomeContract {
 
     interface View extends BaseView<Presenter> {
-        void initBanner(List<PicData.PicDataBean>  picDatalist);
+        void updateBanner(List<PicData.PicDataBean>  picDatalist);
     }
 
     interface Presenter extends BasePresenter {
-        List<PicData.PicDataBean> loadBannerData();
+        void loadBannerData();
 
     }
 }

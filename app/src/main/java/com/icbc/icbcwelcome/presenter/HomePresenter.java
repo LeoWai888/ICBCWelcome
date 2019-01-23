@@ -14,27 +14,65 @@ import java.io.File;
 import java.util.List;
 
 import it.sauronsoftware.ftp4j.FTPClient;
+import it.sauronsoftware.ftp4j.FTPDataTransferListener;
+
 import com.icbc.icbcwelcome.config.constants;
 
 
 public class HomePresenter implements HomeContract.Presenter {
     private HomeContract.View mView;
 
+    //正在传输的文件数量
+    private int transferringFileCount = 0;
+    //更新的轮播图片列表
+    private  List<PicData.PicDataBean> imgDataList;
+    /**
+     * 监听文件传输的状态，上传下载时最后一个参数
+     * @说明
+     * @author cuisuqiang
+     * @version 1.0
+     * @since
+     */
+    private class MyTransferListener implements FTPDataTransferListener{
+
+        // 文件开始上传或下载时触发
+        public void started() {
+            transferringFileCount = transferringFileCount ++;
+        }
+        // 显示已经传输的字节数
+        public void transferred(int length) {
+        }
+        // 文件传输完成时，触发
+        public void completed() {
+            transferringFileCount = transferringFileCount --;
+            if (transferringFileCount == 0){
+                //所有文件传输完成，MainActive启动轮播
+                mView.updateBanner(imgDataList);
+            }
+        }
+        // 传输放弃时触发
+        public void aborted() {
+        }
+        // 传输失败时触发
+        public void failed() {
+            transferringFileCount = transferringFileCount --;
+            if (transferringFileCount == 0){
+                //所有文件传输完成，MainActive启动轮播
+            }
+        }
+    }
 
     @Override
     public void start() {
-
     }
-
 
     public HomePresenter(MainActivity view) {
         this.mView = view;
         view.setPresenter(this);
     }
 
-
     @Override
-    public List<PicData.PicDataBean> loadBannerData() {
+    public void loadBannerData() {
         String imgDataStr="{" +
                 "\"picData\": [{" +
                 "\"fileName\": \"1.jpg\"," +
@@ -74,10 +112,8 @@ public class HomePresenter implements HomeContract.Presenter {
                 "]" +
                 "}";
         PicData imgDataJson = JSON.parseObject(imgDataStr, PicData.class);
-        List<PicData.PicDataBean> imgDataList = imgDataJson.getPicData();
+        imgDataList = imgDataJson.getPicData();
         downloadFile(imgDataList);
-        mView.initBanner(imgDataList);
-        return imgDataList;
     }
 
     private void downloadFile(List<PicData.PicDataBean> fileList)
@@ -97,7 +133,7 @@ public class HomePresenter implements HomeContract.Presenter {
             }
             for ( PicData.PicDataBean picFile:fileList ) {
                 final File file = new File(String.valueOf(dir + picFile.getFileName()));
-                client.download(picFile.getFileName(), file);
+                client.download(picFile.getFileName(), file,new MyTransferListener());
             }
         } catch (Exception e) {
             return;
