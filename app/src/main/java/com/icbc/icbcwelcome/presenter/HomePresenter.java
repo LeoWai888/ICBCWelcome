@@ -11,6 +11,8 @@ import com.icbc.icbcwelcome.contract.HomeContract;
 import com.icbc.icbcwelcome.json.PicData;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import it.sauronsoftware.ftp4j.FTPClient;
@@ -113,9 +115,32 @@ public class HomePresenter implements HomeContract.Presenter {
                 "}";
         PicData imgDataJson = JSON.parseObject(imgDataStr, PicData.class);
         imgDataList = imgDataJson.getPicData();
+        imgDataList = sortImgDataList(imgDataList);
         downloadFile(imgDataList);
     }
 
+    private List<PicData.PicDataBean> sortImgDataList(List<PicData.PicDataBean> imgList)
+    {
+        Collections.sort(imgList, new Comparator<PicData.PicDataBean>(){
+            /*
+             * int compare(PicData.PicDataBean p1, PicData.PicDataBean p2) 返回一个基本类型的整型，
+             * 返回负数表示：p1 小于p2，
+             * 返回0 表示：p1和p2相等，
+             * 返回正数表示：p1大于p2
+             */
+            public int compare(PicData.PicDataBean p1, PicData.PicDataBean p2) {
+                //按照DisplayOrder对列表进行升序排列
+                if(p1.getDisplayOrder() > p2.getDisplayOrder()){
+                    return 1;
+                }
+                if(p1.getDisplayOrder() == p2.getDisplayOrder()){
+                    return 0;
+                }
+                return -1;
+            }
+        });
+        return imgList;
+    }
     private void downloadFile(List<PicData.PicDataBean> fileList)
     {
         FTPClient client;

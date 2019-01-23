@@ -99,7 +99,6 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         List<String> list = new ArrayList<>();
         for (PicData.PicDataBean pic : picDatalist) {
             list.add(constants.LOCATPATH + pic.getFileName());
-
         }
         banner.stopAutoPlay();
         banner.update(list);
