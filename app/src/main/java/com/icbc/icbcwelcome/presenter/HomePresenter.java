@@ -73,6 +73,18 @@ public class HomePresenter implements HomeContract.Presenter {
         view.setPresenter(this);
     }
 
+
+/*
+    @Override
+    public void WebSocketConnect(){
+
+
+
+    }
+   */
+
+
+
     @Override
     public void loadBannerData() {
         String imgDataStr="{" +

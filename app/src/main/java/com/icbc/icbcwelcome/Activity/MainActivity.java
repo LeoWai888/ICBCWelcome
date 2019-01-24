@@ -91,6 +91,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         banner.setDelayTime(5000)
                 .setImages(list)
                 .setImageLoader(new GlideImageLoader())
+                .isAutoPlay(true)
                 .start();
     }
 
