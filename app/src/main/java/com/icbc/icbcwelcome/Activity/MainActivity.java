@@ -2,7 +2,6 @@ package com.icbc.icbcwelcome.Activity;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.os.Environment;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
@@ -85,8 +84,9 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     }
 
     public void initBanner() {
-        List<String> list = new ArrayList<>();
-        list.add(constants.LOCATPATH + "loading.jpg");
+        List<Integer> list = new ArrayList<>();
+       // list.add(constants.LOCATPATH + "loading.jpg");
+        list.add(R.drawable.loading);
         banner.setBannerStyle(BannerConfig.NOT_INDICATOR);
         banner.setDelayTime(5000)
                 .setImages(list)
