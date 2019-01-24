@@ -23,6 +23,7 @@ import com.icbc.icbcwelcome.config.constants;
 
 public class HomePresenter implements HomeContract.Presenter {
     private HomeContract.View mView;
+    private MainActivity mainActivity;
 
     //正在传输的文件数量
     private int transferringFileCount = 0;
@@ -60,6 +61,8 @@ public class HomePresenter implements HomeContract.Presenter {
             transferringFileCount = transferringFileCount --;
             if (transferringFileCount == 0){
                 //所有文件传输完成，MainActive启动轮播
+                mainActivity.initBanner();
+
             }
         }
     }
