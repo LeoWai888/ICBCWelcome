@@ -110,7 +110,6 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
                           public void run() {
                               banner.update(bannnerImgList);
                           }
-                      }
-            );
+                      });
     }
 }
