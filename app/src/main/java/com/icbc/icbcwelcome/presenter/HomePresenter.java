@@ -1,5 +1,7 @@
 package com.icbc.icbcwelcome.presenter;
 
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
@@ -24,12 +26,9 @@ public class HomePresenter implements HomeContract.Presenter {
     //更新的轮播图片列表
     private  List<PicData.PicDataBean> imgDataList;
     private int transferringFileCount = 0;
+
     /**
      * 监听文件传输的状态，上传下载时最后一个参数
-     * @说明
-     * @author cuisuqiang
-     * @version 1.0
-     * @since
      */
     private class MyTransferListener implements FTPDataTransferListener{
 
@@ -62,6 +61,38 @@ public class HomePresenter implements HomeContract.Presenter {
         }
     }
 
+    /**
+     * 监听文件传输的状态，上传下载时最后一个参数
+     */
+    private Handler handler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            Model model;
+            super.handleMessage(msg);
+            SignJson signJson= JSON.parseObject(msg.obj.toString(),SignJson.class);
+            if(signJson!=null) {
+                model = new Model();
+                model.setTitle(signJson.getName().toString()+"   "+signJson.getUserDept());
+                model.setContent(signJson.getCompareTime().toString());
+                model.setImgBase64(signJson.getCardImg());
+                datas.add(0,model);   //数据添加到0位置
+//                changeImg(signJson.getCardImg());  //显示照片
+
+//                Bitmap bitmap;
+//                byte[] bitmapArray;
+//                bitmapArray = Base64.decode(signJson.getCardImg(), Base64.DEFAULT);
+//                bitmap = BitmapFactory.decodeByteArray(bitmapArray, 0, bitmapArray.length);
+//                mImg.setImageBitmap(bitmap);
+
+                number();    //数字变化
+//                ObjectAnimator animator=ObjectAnimator.ofFloat(mAddimg,"alpha",7f,0f);
+//                mAddimg.setVisibility(View.VISIBLE);   //显示+1图片
+//                animator.setDuration(500);
+//                animator.start();
+                adapter.notifyDataSetChanged();   //更新listview并显示
+            }
+        }
+    };
 
     @Override
     public void start() {

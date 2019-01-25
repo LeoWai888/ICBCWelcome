@@ -3,10 +3,13 @@ package com.icbc.icbcwelcome.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.ImageView;
 
+import com.alibaba.fastjson.JSON;
 import com.bumptech.glide.Glide;
 import com.icbc.icbcwelcome.R;
 import com.icbc.icbcwelcome.base.BaseActivity;
