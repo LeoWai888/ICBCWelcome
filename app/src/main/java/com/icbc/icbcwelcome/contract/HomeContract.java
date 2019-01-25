@@ -17,8 +17,4 @@ public interface HomeContract {
 
     }
 
-    interface WebSocket extends BasePresenter {
-        void WebSocketConnect();
-
-    }
 }

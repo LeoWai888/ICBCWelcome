@@ -8,15 +8,12 @@ import com.icbc.icbcwelcome.contract.HomeContract;
 import com.icbc.icbcwelcome.json.PicData;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import it.sauronsoftware.ftp4j.FTPClient;
 import it.sauronsoftware.ftp4j.FTPDataTransferListener;
-import it.sauronsoftware.ftp4j.FTPException;
-import it.sauronsoftware.ftp4j.FTPIllegalReplyException;
 
 import com.icbc.icbcwelcome.config.constants;
 
@@ -157,9 +154,6 @@ public class HomePresenter implements HomeContract.Presenter {
                     client.connect(constants.HOST, constants.PORT);
                     client.login(constants.USERNAME, constants.PASSWORD);
                     client.changeDirectory(constants.REMOTEPATH);
-//                    String[] files=client.listNames();
-//                    Log.e("files***", String.valueOf(files));
-                    /////////文件下载
                     String dir = constants.LOCATPATH;
 
                     File fileDir = new File(dir);
@@ -168,7 +162,6 @@ public class HomePresenter implements HomeContract.Presenter {
                     }
                     for ( PicData.PicDataBean picFile:imgDataList ) {
                         final File file = new File(String.valueOf(dir + picFile.getFileName()));
-//                        Log.e("wenjian:", String.valueOf(file)+"   asdjahjksdah          "+picFile.getFileName());
                         client.download(picFile.getFileName(), file,new MyTransferListener());
                     }
                 } catch (Exception e) {

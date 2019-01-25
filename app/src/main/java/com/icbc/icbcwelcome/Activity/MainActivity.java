@@ -106,8 +106,12 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         for (PicData.PicDataBean pic : picDatalist) {
             list.add(constants.LOCATPATH + pic.getFileName());
         }
-        banner.update(list);
 
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                banner.update(list);
+            }
 
 //        banner.stopAutoPlay();
 //        banner.setImages(list);
