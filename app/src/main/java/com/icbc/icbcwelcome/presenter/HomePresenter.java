@@ -77,15 +77,20 @@ public class HomePresenter implements HomeContract.Presenter {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            PicData signJson= JSON.parseObject(msg.obj.toString(),PicData.class);
-            if(signJson!=null) {
+            PicData imgDataJson = JSON.parseObject(msg.obj.toString(), PicData.class);
+            imgDataList = imgDataJson.getPicData();
+            imgDataList = sortImgDataList(imgDataList);
+            transferringFileCount = imgDataList.size();
+            if(transferringFileCount>0) {
                 // TODO: 2019/1/25 下载发布的图片，同时更新banner列表
+                downloadFile();
             }
         }
     };
 
     //websocket
-    private void getPeople()
+    @Override
+    public void initWebSocket()
     {
         new Thread(new Runnable() {
             @Override

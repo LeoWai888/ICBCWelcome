@@ -84,6 +84,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         banner = (Banner) findViewById(R.id.banner);
         bannnerImgList = new ArrayList<>();
         initView();
+        mPresenter.initWebSocket();
     }
 
 
