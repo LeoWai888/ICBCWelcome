@@ -2,9 +2,9 @@ package com.icbc.icbcwelcome.Activity;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.os.Environment;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -22,6 +22,8 @@ import com.youth.banner.loader.ImageLoader;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import dmax.dialog.SpotsDialog;
 
 public class MainActivity extends BaseActivity implements HomeContract.View {
 
@@ -73,6 +75,9 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mDialog = new SpotsDialog(this);
+        mDialog.getWindow().setGravity(Gravity.CENTER);
         mPresenter = new HomePresenter(this);
         banner = (Banner) findViewById(R.id.banner);
         initView();
@@ -85,8 +90,9 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     }
 
     public void initBanner() {
-        List<String> list = new ArrayList<>();
-        list.add(constants.LOCATPATH + "loading.jpg");
+        List<Integer> list = new ArrayList<>();
+        list.add(R.drawable.loading);
+        list.add(R.drawable.firstbg);
         banner.setBannerStyle(BannerConfig.NOT_INDICATOR);
         banner.setDelayTime(5000)
                 .setImages(list)
@@ -100,8 +106,12 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         for (PicData.PicDataBean pic : picDatalist) {
             list.add(constants.LOCATPATH + pic.getFileName());
         }
-        banner.stopAutoPlay();
         banner.update(list);
-        banner.startAutoPlay();
+
+
+//        banner.stopAutoPlay();
+//        banner.setImages(list);
+//        banner.update(list);
+//        banner.startAutoPlay();
     }
 }

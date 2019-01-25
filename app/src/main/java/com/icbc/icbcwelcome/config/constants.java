@@ -5,10 +5,10 @@ import android.os.Environment;
 public class constants {
     //FTP
     public static final String HOST = "115.4.109.195";
-    public static final int PORT = 21;
+    public static final int PORT =21;
     public static final String USERNAME = "root";
     public static final String PASSWORD = "icbcgd";
-    public static final String REMOTEPATH = "/datafs/GD/webserver/applications/FACEDEAL/static/test/";
-    public static final String LOCATPATH = Environment.getExternalStorageDirectory() + "/test/";
+    public static final String REMOTEPATH = "/datafs/Public/";
+    public static final String LOCATPATH = Environment.getExternalStorageDirectory() + "/Public/";
 
 }

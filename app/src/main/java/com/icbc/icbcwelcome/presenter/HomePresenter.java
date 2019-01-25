@@ -1,8 +1,5 @@
 package com.icbc.icbcwelcome.presenter;
 
-
-import android.os.Environment;
-import android.os.Message;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
@@ -11,19 +8,23 @@ import com.icbc.icbcwelcome.contract.HomeContract;
 import com.icbc.icbcwelcome.json.PicData;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import it.sauronsoftware.ftp4j.FTPClient;
 import it.sauronsoftware.ftp4j.FTPDataTransferListener;
+import it.sauronsoftware.ftp4j.FTPException;
+import it.sauronsoftware.ftp4j.FTPIllegalReplyException;
 
 import com.icbc.icbcwelcome.config.constants;
 
 
 public class HomePresenter implements HomeContract.Presenter {
     private HomeContract.View mView;
-
+    private FTPClient client;
+    private MainActivity mainActivity;
     //正在传输的文件数量
     private int transferringFileCount = 0;
     //更新的轮播图片列表
@@ -49,6 +50,7 @@ public class HomePresenter implements HomeContract.Presenter {
             transferringFileCount = transferringFileCount --;
             if (transferringFileCount == 0){
                 //所有文件传输完成，MainActive启动轮播
+                mView.hodeLoding();
                 mView.updateBanner(imgDataList);
             }
         }
@@ -60,6 +62,9 @@ public class HomePresenter implements HomeContract.Presenter {
             transferringFileCount = transferringFileCount --;
             if (transferringFileCount == 0){
                 //所有文件传输完成，MainActive启动轮播
+                mView.hodeLoding();
+                mView.updateBanner(imgDataList);
+
             }
         }
     }
@@ -75,39 +80,40 @@ public class HomePresenter implements HomeContract.Presenter {
 
     @Override
     public void loadBannerData() {
+        mView.showLoding();
         String imgDataStr="{" +
                 "\"picData\": [{" +
-                "\"fileName\": \"1.jpg\"," +
+                "\"fileName\": \"1.jpeg\"," +
                 "\"displayTime\": 5," +
                 "\"displayOrder\": 1" +
                 "}," +
                 "{" +
-                "\"fileName\": \"2.jpg\"," +
+                "\"fileName\": \"2.jpeg\"," +
                 "\"displayTime\": 5," +
                 "\"displayOrder\": 2" +
                 "}," +
                 "{" +
-                "\"fileName\": \"3.jpg\"," +
+                "\"fileName\": \"3.jpeg\"," +
                 "\"displayTime\": 5," +
                 "\"displayOrder\": 3" +
                 "}," +
                 "{" +
-                "\"fileName\": \"4.jpg\"," +
+                "\"fileName\": \"4.jpeg\"," +
                 "\"displayTime\": 5," +
                 "\"displayOrder\": 4" +
                 "}," +
                 "{" +
-                "\"fileName\": \"5.jpg\"," +
+                "\"fileName\": \"5.jpeg\"," +
                 "\"displayTime\": 5," +
                 "\"displayOrder\": 5" +
                 "}," +
                 "{" +
-                "\"fileName\": \"6.jpg\"," +
+                "\"fileName\": \"6.jpeg\"," +
                 "\"displayTime\": 5," +
                 "\"displayOrder\": 6" +
                 "}," +
                 "{" +
-                "\"fileName\": \"7.jpg\"," +
+                "\"fileName\": \"7.jpeg\"," +
                 "\"displayTime\": 5," +
                 "\"displayOrder\": 7" +
                 "}" +
@@ -116,7 +122,7 @@ public class HomePresenter implements HomeContract.Presenter {
         PicData imgDataJson = JSON.parseObject(imgDataStr, PicData.class);
         imgDataList = imgDataJson.getPicData();
         imgDataList = sortImgDataList(imgDataList);
-        downloadFile(imgDataList);
+        downloadFile();
     }
 //对轮播图片列表进行排序
     private List<PicData.PicDataBean> sortImgDataList(List<PicData.PicDataBean> imgList)
@@ -141,28 +147,35 @@ public class HomePresenter implements HomeContract.Presenter {
         });
         return imgList;
     }
-    private void downloadFile(List<PicData.PicDataBean> fileList)
+    private void downloadFile()
     {
-        FTPClient client;
         client = new FTPClient();
-        try {
-            client.connect(constants.HOST, constants.PORT);
-            client.login(constants.USERNAME, constants.PASSWORD);
-            client.changeDirectory(constants.REMOTEPATH);
-            /////////文件下载
-            String dir = constants.LOCATPATH;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    client.connect(constants.HOST, constants.PORT);
+                    client.login(constants.USERNAME, constants.PASSWORD);
+                    client.changeDirectory(constants.REMOTEPATH);
+//                    String[] files=client.listNames();
+//                    Log.e("files***", String.valueOf(files));
+                    /////////文件下载
+                    String dir = constants.LOCATPATH;
 
-            File fileDir = new File(dir);
-            if (!fileDir.exists()) {
-                fileDir.mkdirs();
+                    File fileDir = new File(dir);
+                    if (!fileDir.exists()) {
+                        fileDir.mkdirs();
+                    }
+                    for ( PicData.PicDataBean picFile:imgDataList ) {
+                        final File file = new File(String.valueOf(dir + picFile.getFileName()));
+//                        Log.e("wenjian:", String.valueOf(file)+"   asdjahjksdah          "+picFile.getFileName());
+                        client.download(picFile.getFileName(), file,new MyTransferListener());
+                    }
+                } catch (Exception e) {
+                    return;
+                }
             }
-            for ( PicData.PicDataBean picFile:fileList ) {
-                final File file = new File(String.valueOf(dir + picFile.getFileName()));
-                client.download(picFile.getFileName(), file,new MyTransferListener());
-            }
-        } catch (Exception e) {
-            return;
-        }
+        }).start();
     }
 }
 
