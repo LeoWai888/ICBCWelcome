@@ -38,9 +38,8 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     }
 
     Banner banner;
-    private ImageView showImg;
     private AlertDialog mDialog;//等待对话框
-    private List<PicData.PicDataBean> picDatalist = new ArrayList<>();
+    private List<String> bannnerImgList;
     private HomeContract.Presenter mPresenter;
 
     @Override
@@ -80,6 +79,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         mDialog.getWindow().setGravity(Gravity.CENTER);
         mPresenter = new HomePresenter(this);
         banner = (Banner) findViewById(R.id.banner);
+        bannnerImgList = new ArrayList<>();
         initView();
     }
 
@@ -90,32 +90,27 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     }
 
     public void initBanner() {
-        List<Integer> list = new ArrayList<>();
-        list.add(R.drawable.loading);
-        list.add(R.drawable.firstbg);
+        bannnerImgList.add(constants.LOCATPATH+"loading.jpeg");
+
         banner.setBannerStyle(BannerConfig.NOT_INDICATOR);
         banner.setDelayTime(5000)
-                .setImages(list)
+                .setImages(bannnerImgList)
                 .setImageLoader(new GlideImageLoader())
                 .start();
     }
 
     public void updateBanner(List<PicData.PicDataBean>  picDatalist) {
-        //
-        List<String> list = new ArrayList<>();
+        bannnerImgList.clear();
         for (PicData.PicDataBean pic : picDatalist) {
-            list.add(constants.LOCATPATH + pic.getFileName());
+            bannnerImgList.add(constants.LOCATPATH + pic.getFileName());
         }
 
         runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                banner.update(list);
-            }
-
-//        banner.stopAutoPlay();
-//        banner.setImages(list);
-//        banner.update(list);
-//        banner.startAutoPlay();
+                          @Override
+                          public void run() {
+                              banner.update(bannnerImgList);
+                          }
+                      }
+            );
     }
 }
