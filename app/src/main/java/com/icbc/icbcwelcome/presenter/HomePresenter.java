@@ -34,6 +34,8 @@ public class HomePresenter implements HomeContract.Presenter {
     private  List<PicData.PicDataBean> imgDataList;
     private int transferringFileCount = 0;
 
+    private WebSocketClient mSocketClient;
+
     /**
      * 监听文件传输的状态，上传下载时最后一个参数
      */
@@ -74,29 +76,10 @@ public class HomePresenter implements HomeContract.Presenter {
     private Handler handler=new Handler(){
         @Override
         public void handleMessage(Message msg) {
-            Model model;
             super.handleMessage(msg);
-            SignJson signJson= JSON.parseObject(msg.obj.toString(),SignJson.class);
+            PicData signJson= JSON.parseObject(msg.obj.toString(),PicData.class);
             if(signJson!=null) {
-                model = new Model();
-                model.setTitle(signJson.getName().toString()+"   "+signJson.getUserDept());
-                model.setContent(signJson.getCompareTime().toString());
-                model.setImgBase64(signJson.getCardImg());
-                datas.add(0,model);   //数据添加到0位置
-//                changeImg(signJson.getCardImg());  //显示照片
-
-//                Bitmap bitmap;
-//                byte[] bitmapArray;
-//                bitmapArray = Base64.decode(signJson.getCardImg(), Base64.DEFAULT);
-//                bitmap = BitmapFactory.decodeByteArray(bitmapArray, 0, bitmapArray.length);
-//                mImg.setImageBitmap(bitmap);
-
-                number();    //数字变化
-//                ObjectAnimator animator=ObjectAnimator.ofFloat(mAddimg,"alpha",7f,0f);
-//                mAddimg.setVisibility(View.VISIBLE);   //显示+1图片
-//                animator.setDuration(500);
-//                animator.start();
-                adapter.notifyDataSetChanged();   //更新listview并显示
+                // TODO: 2019/1/25 下载发布的图片，同时更新banner列表
             }
         }
     };
@@ -109,7 +92,7 @@ public class HomePresenter implements HomeContract.Presenter {
             public void run() {
                 try{
                     //TODO 切换URL为自己的IP
-                    mSocketClient = new WebSocketClient(new URI(getString(R.string.URI_name)), new Draft_17()) {
+                    mSocketClient = new WebSocketClient(new URI(constants.WEBSOCKETURL), new Draft_17()) {
                         @Override
                         public void onOpen(ServerHandshake handshakedata) {
                             Log.d("picher_log", "run() return:" + "连接到服务器");

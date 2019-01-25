@@ -11,4 +11,6 @@ public class constants {
     public static final String REMOTEPATH = "/datafs/Publish/";
     public static final String LOCATPATH = Environment.getExternalStorageDirectory() + "/Publish/";
 
+    //webSocket
+    public static final String WEBSOCKETURL= "ws://115.4.109.195:8889/realtime/mygroup";
 }
