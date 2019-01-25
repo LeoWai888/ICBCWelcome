@@ -6,10 +6,13 @@ import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
 import com.icbc.icbcwelcome.Activity.MainActivity;
+import com.icbc.icbcwelcome.R;
 import com.icbc.icbcwelcome.contract.HomeContract;
 import com.icbc.icbcwelcome.json.PicData;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -18,6 +21,10 @@ import it.sauronsoftware.ftp4j.FTPClient;
 import it.sauronsoftware.ftp4j.FTPDataTransferListener;
 
 import com.icbc.icbcwelcome.config.constants;
+
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.drafts.Draft_17;
+import org.java_websocket.handshake.ServerHandshake;
 
 
 public class HomePresenter implements HomeContract.Presenter {
@@ -93,6 +100,46 @@ public class HomePresenter implements HomeContract.Presenter {
             }
         }
     };
+
+    //websocket
+    private void getPeople()
+    {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    //TODO 切换URL为自己的IP
+                    mSocketClient = new WebSocketClient(new URI(getString(R.string.URI_name)), new Draft_17()) {
+                        @Override
+                        public void onOpen(ServerHandshake handshakedata) {
+                            Log.d("picher_log", "run() return:" + "连接到服务器");
+                        }
+
+                        @Override
+                        public void onMessage(String message) {
+                            Log.d("picher_log", "接收消息" + message);
+//                            SignJson signJson= JSON.parseObject(message.toString(),SignJson.class);
+                            handler.obtainMessage(0, message).sendToTarget();
+                        }
+
+                        @Override
+                        public void onClose(int code, String reason, boolean remote) {
+                            Log.d("picher_log", "通道关闭");
+                        }
+
+                        @Override
+                        public void onError(Exception ex) {
+                            Log.d("picher_log", "链接错误");
+                        }
+                    };
+                    mSocketClient.connect();
+
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
 
     @Override
     public void start() {
