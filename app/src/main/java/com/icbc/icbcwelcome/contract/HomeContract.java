@@ -16,4 +16,9 @@ public interface HomeContract {
         void loadBannerData();
 
     }
+
+    interface WebSocket extends BasePresenter {
+        void WebSocketConnect();
+
+    }
 }
