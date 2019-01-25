@@ -21,11 +21,9 @@ import com.icbc.icbcwelcome.config.constants;
 public class HomePresenter implements HomeContract.Presenter {
     private HomeContract.View mView;
     private FTPClient client;
-    private MainActivity mainActivity;
-    //正在传输的文件数量
-    private int transferringFileCount = 0;
     //更新的轮播图片列表
     private  List<PicData.PicDataBean> imgDataList;
+    private int transferringFileCount = 0;
     /**
      * 监听文件传输的状态，上传下载时最后一个参数
      * @说明
@@ -35,18 +33,18 @@ public class HomePresenter implements HomeContract.Presenter {
      */
     private class MyTransferListener implements FTPDataTransferListener{
 
+
         // 文件开始上传或下载时触发
         public void started() {
-            transferringFileCount = transferringFileCount ++;
+//            transferringFileCount = transferringFileCount --;
         }
         // 显示已经传输的字节数
         public void transferred(int length) {
         }
         // 文件传输完成时，触发
         public void completed() {
-            transferringFileCount = transferringFileCount --;
-            if (transferringFileCount == 0){
-                //所有文件传输完成，MainActive启动轮播
+            transferringFileCount = transferringFileCount -1 ;
+            if (transferringFileCount==0){
                 mView.hodeLoding();
                 mView.updateBanner(imgDataList);
             }
@@ -56,15 +54,14 @@ public class HomePresenter implements HomeContract.Presenter {
         }
         // 传输失败时触发
         public void failed() {
-            transferringFileCount = transferringFileCount --;
-            if (transferringFileCount == 0){
-                //所有文件传输完成，MainActive启动轮播
+            transferringFileCount = transferringFileCount -1 ;
+            if (transferringFileCount==0){
                 mView.hodeLoding();
                 mView.updateBanner(imgDataList);
-
             }
         }
     }
+
 
     @Override
     public void start() {
@@ -119,6 +116,7 @@ public class HomePresenter implements HomeContract.Presenter {
         PicData imgDataJson = JSON.parseObject(imgDataStr, PicData.class);
         imgDataList = imgDataJson.getPicData();
         imgDataList = sortImgDataList(imgDataList);
+        transferringFileCount = imgDataList.size();
         downloadFile();
     }
 //对轮播图片列表进行排序

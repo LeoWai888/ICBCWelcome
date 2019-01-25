@@ -108,7 +108,11 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         runOnUiThread(new Runnable() {
                           @Override
                           public void run() {
-                              banner.update(bannnerImgList);
+                              banner.setBannerStyle(BannerConfig.NOT_INDICATOR);
+                              banner.setDelayTime(5000)
+                                      .setImages(bannnerImgList)
+                                      .setImageLoader(new GlideImageLoader())
+                                      .start();
                           }
                       });
     }
