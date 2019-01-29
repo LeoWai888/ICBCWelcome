@@ -2,7 +2,9 @@ package com.icbc.icbcwelcome.presenter;
 
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.VideoView;
 
 import com.alibaba.fastjson.JSON;
 import com.icbc.icbcwelcome.Activity.MainActivity;
@@ -11,6 +13,7 @@ import com.icbc.icbcwelcome.contract.HomeContract;
 import com.icbc.icbcwelcome.json.PicData;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
@@ -19,8 +22,14 @@ import java.util.List;
 
 import it.sauronsoftware.ftp4j.FTPClient;
 import it.sauronsoftware.ftp4j.FTPDataTransferListener;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import com.icbc.icbcwelcome.config.constants;
+import com.icbc.icbcwelcome.util.Vedio;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_17;
@@ -30,6 +39,7 @@ import org.java_websocket.handshake.ServerHandshake;
 public class HomePresenter implements HomeContract.Presenter {
     private HomeContract.View mView;
     private FTPClient client;
+    private VideoView videoView;
     //更新的轮播图片列表
     private  List<PicData.PicDataBean> imgDataList;
     private int transferringFileCount = 0;
@@ -87,7 +97,20 @@ public class HomePresenter implements HomeContract.Presenter {
             }
         }
     };
+    // Video
+    @Override
+    public void initVideo(VideoView videoView,File file)
+    {
 
+        //File file=new File("./mnt/sda/sda1/Awel/test","icbc.mp4");
+      //  File file=new File(path);
+         videoView.setVideoPath(file.getPath());
+       //  Vedio vedio=new Vedio(file);
+
+
+
+
+    }
     //websocket
     @Override
     public void initWebSocket()
@@ -141,49 +164,72 @@ public class HomePresenter implements HomeContract.Presenter {
     @Override
     public void loadBannerData() {
         mView.showLoding();
-        String imgDataStr="{" +
-                "\"picData\": [{" +
-                "\"fileName\": \"1.jpeg\"," +
-                "\"displayTime\": 5," +
-                "\"displayOrder\": 1" +
-                "}," +
-                "{" +
-                "\"fileName\": \"2.jpeg\"," +
-                "\"displayTime\": 5," +
-                "\"displayOrder\": 2" +
-                "}," +
-                "{" +
-                "\"fileName\": \"3.jpeg\"," +
-                "\"displayTime\": 5," +
-                "\"displayOrder\": 3" +
-                "}," +
-                "{" +
-                "\"fileName\": \"4.jpeg\"," +
-                "\"displayTime\": 5," +
-                "\"displayOrder\": 4" +
-                "}," +
-                "{" +
-                "\"fileName\": \"5.jpeg\"," +
-                "\"displayTime\": 5," +
-                "\"displayOrder\": 5" +
-                "}," +
-                "{" +
-                "\"fileName\": \"6.jpeg\"," +
-                "\"displayTime\": 5," +
-                "\"displayOrder\": 6" +
-                "}," +
-                "{" +
-                "\"fileName\": \"7.jpeg\"," +
-                "\"displayTime\": 5," +
-                "\"displayOrder\": 7" +
-                "}" +
-                "]" +
-                "}";
-        PicData imgDataJson = JSON.parseObject(imgDataStr, PicData.class);
-        imgDataList = imgDataJson.getPicData();
-        imgDataList = sortImgDataList(imgDataList);
-        transferringFileCount = imgDataList.size();
-        downloadFile();
+//        String imgDataStr="{" +
+//                "\"picData\": [{" +
+//                "\"fileName\": \"1.jpeg\"," +
+//                "\"displayTime\": 5," +
+//                "\"displayOrder\": 1" +
+//                "}," +
+//                "{" +
+//                "\"fileName\": \"2.jpeg\"," +
+//                "\"displayTime\": 5," +
+//                "\"displayOrder\": 2" +
+//                "}," +
+//                "{" +
+//                "\"fileName\": \"3.jpeg\"," +
+//                "\"displayTime\": 5," +
+//                "\"displayOrder\": 3" +
+//                "}," +
+//                "{" +
+//                "\"fileName\": \"4.jpeg\"," +
+//                "\"displayTime\": 5," +
+//                "\"displayOrder\": 4" +
+//                "}," +
+//                "{" +
+//                "\"fileName\": \"5.jpeg\"," +
+//                "\"displayTime\": 5," +
+//                "\"displayOrder\": 5" +
+//                "}," +
+//                "{" +
+//                "\"fileName\": \"6.jpeg\"," +
+//                "\"displayTime\": 5," +
+//                "\"displayOrder\": 6" +
+//                "}," +
+//                "{" +
+//                "\"fileName\": \"7.jpeg\"," +
+//                "\"displayTime\": 5," +
+//                "\"displayOrder\": 7" +
+//                "}" +
+//                "]" +
+//                "}";
+        String url = constants.INITURL;
+        OkHttpClient okHttpClient = new OkHttpClient();
+        final Request request = new Request.Builder()
+                .url(url)
+                .get()//默认就是GET请求，可以不写
+                .build();
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+//                转圈结束
+                mView.hodeLoding();
+                Log.d("BACS", "onFailure: 获取系统值班参数失败！");
+                //弹出错误提示窗口
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseStr = response.body().string();
+                Log.d("BACS", "onResponse: " + responseStr);
+                PicData imgDataJson = JSON.parseObject(responseStr, PicData.class);
+                imgDataList = imgDataJson.getPicData();
+                imgDataList = sortImgDataList(imgDataList);
+                transferringFileCount = imgDataList.size();
+                downloadFile();
+            }
+        });
+
     }
 //对轮播图片列表进行排序
     private List<PicData.PicDataBean> sortImgDataList(List<PicData.PicDataBean> imgList)

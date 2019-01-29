@@ -3,11 +3,13 @@ package com.icbc.icbcwelcome.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.ImageView;
+import android.widget.VideoView;
 
 import com.alibaba.fastjson.JSON;
 import com.bumptech.glide.Glide;
@@ -23,6 +25,7 @@ import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
 import com.youth.banner.loader.ImageLoader;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +44,8 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     }
 
     Banner banner;
+    private VideoView videoView;
+
     private AlertDialog mDialog;//等待对话框
     private List<String> bannnerImgList;
     private HomeContract.Presenter mPresenter;
@@ -76,15 +81,25 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        //setContentView(R.layout.activity_main);
+        setContentView(R.layout.welcome);
 
+/*
         mDialog = new SpotsDialog(this);
         mDialog.getWindow().setGravity(Gravity.CENTER);
-        mPresenter = new HomePresenter(this);
-        banner = (Banner) findViewById(R.id.banner);
-        bannnerImgList = new ArrayList<>();
+        mPresenter = new HomePresenter(this);*/
+       // banner = (Banner) findViewById(R.id.banner);
+        videoView=(VideoView) findViewById(R.id.vedio_welcome);
+    /*    bannnerImgList = new ArrayList<>();
         initView();
-        mPresenter.initWebSocket();
+        mPresenter.initWebSocket();*/
+
+        File file=new File(Environment.getExternalStorageDirectory()+"/test","icbc.mp4");
+
+        videoView.setVideoPath(file.getPath());
+        videoView.start();
+        //  mPresenter.initVideo(videoView,file);
+
     }
 
 

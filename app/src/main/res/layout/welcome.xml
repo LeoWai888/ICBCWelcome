@@ -33,7 +33,8 @@
                 android:layout_marginTop="68dp"
 
                 android:gravity="center"
-                android:text="@string/app_name" />
+                android:text="欢迎XXXXX领导位临我行指导工作！"
+                android:textColor="#FF4040"/>
         </RelativeLayout>
 
 
