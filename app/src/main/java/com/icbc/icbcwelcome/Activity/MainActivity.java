@@ -81,24 +81,26 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_main);
-        setContentView(R.layout.welcome);
+        setContentView(R.layout.activity_main);   //连FTP测试
+        //setContentView(R.layout.welcome);           //本地视频测试
 
-/*
         mDialog = new SpotsDialog(this);
         mDialog.getWindow().setGravity(Gravity.CENTER);
-        mPresenter = new HomePresenter(this);*/
-       // banner = (Banner) findViewById(R.id.banner);
+        mPresenter = new HomePresenter(this);
+        banner = (Banner) findViewById(R.id.banner);
         videoView=(VideoView) findViewById(R.id.vedio_welcome);
-    /*    bannnerImgList = new ArrayList<>();
+        bannnerImgList = new ArrayList<>();
         initView();
-        mPresenter.initWebSocket();*/
+        mPresenter.initWebSocket();
 
-        File file=new File(Environment.getExternalStorageDirectory()+"/test","icbc.mp4");
+    /*   File file=new File(Environment.getExternalStorageDirectory()+"/test","icbc.mp4");
 
-        videoView.setVideoPath(file.getPath());
+        videoView.setVideoPath();
         videoView.start();
-        //  mPresenter.initVideo(videoView,file);
+*/
+
+        //File file=new File(Environment.getExternalStorageDirectory()+"/test","icbc.mp4");
+        //mPresenter.initVideo(videoView,file);
 
     }
 

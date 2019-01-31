@@ -2,13 +2,10 @@ package com.icbc.icbcwelcome.presenter;
 
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.VideoView;
 
 import com.alibaba.fastjson.JSON;
-import com.icbc.icbcwelcome.Activity.MainActivity;
-import com.icbc.icbcwelcome.R;
 import com.icbc.icbcwelcome.contract.HomeContract;
 import com.icbc.icbcwelcome.json.PicData;
 
@@ -29,10 +26,10 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import com.icbc.icbcwelcome.config.constants;
-import com.icbc.icbcwelcome.util.Vedio;
 
 import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.drafts.Draft_17;
+import org.java_websocket.drafts.Draft;
+import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.handshake.ServerHandshake;
 
 
@@ -45,6 +42,11 @@ public class HomePresenter implements HomeContract.Presenter {
     private int transferringFileCount = 0;
 
     private WebSocketClient mSocketClient;
+
+    public HomePresenter(HomeContract.View view) {
+        this.mView = view;
+        view.setPresenter(this);
+    }
 
     /**
      * 监听文件传输的状态，上传下载时最后一个参数
@@ -65,6 +67,7 @@ public class HomePresenter implements HomeContract.Presenter {
             if (transferringFileCount==0){
                 mView.hodeLoding();
                 mView.updateBanner(imgDataList);
+
             }
         }
         // 传输放弃时触发
@@ -98,19 +101,25 @@ public class HomePresenter implements HomeContract.Presenter {
         }
     };
     // Video
-    @Override
+/*    @Override
     public void initVideo(VideoView videoView,File file)
     {
 
         //File file=new File("./mnt/sda/sda1/Awel/test","icbc.mp4");
       //  File file=new File(path);
-         videoView.setVideoPath(file.getPath());
-       //  Vedio vedio=new Vedio(file);
+       //  videoView.setVideoPath(file.getPath());
+        VideoPlay vedio=new VideoPlay(videoView,file);
 
 
 
+       *//* File file1=new File(Environment.getExternalStorageDirectory()+"/test","icbc.mp4");
 
-    }
+        videoView.setVideoPath(file1.getPath());
+        videoView.start();
+*//*
+       }*/
+
+
     //websocket
     @Override
     public void initWebSocket()
@@ -120,7 +129,9 @@ public class HomePresenter implements HomeContract.Presenter {
             public void run() {
                 try{
                     //TODO 切换URL为自己的IP
-                    mSocketClient = new WebSocketClient(new URI(constants.WEBSOCKETURL), new Draft_17()) {
+                    mSocketClient = new WebSocketClient(new URI(constants.WEBSOCKETURL), new Draft_6455()) {
+
+
                         @Override
                         public void onOpen(ServerHandshake handshakedata) {
                             Log.d("picher_log", "run() return:" + "连接到服务器");
@@ -129,8 +140,11 @@ public class HomePresenter implements HomeContract.Presenter {
                         @Override
                         public void onMessage(String message) {
                             Log.d("picher_log", "接收消息" + message);
-//                            SignJson signJson= JSON.parseObject(message.toString(),SignJson.class);
-                            handler.obtainMessage(0, message).sendToTarget();
+                            PicData imgDataJson = JSON.parseObject(message, PicData.class);
+                            imgDataList = imgDataJson.getPicData();
+                            imgDataList = sortImgDataList(imgDataList);
+                            transferringFileCount = imgDataList.size();
+                            downloadFile();
                         }
 
                         @Override
@@ -156,10 +170,7 @@ public class HomePresenter implements HomeContract.Presenter {
     public void start() {
     }
 
-    public HomePresenter(MainActivity view) {
-        this.mView = view;
-        view.setPresenter(this);
-    }
+
 
     @Override
     public void loadBannerData() {
