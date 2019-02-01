@@ -2,16 +2,14 @@ package com.icbc.icbcwelcome.Activity;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.VideoView;
 
-import com.alibaba.fastjson.JSON;
 import com.bumptech.glide.Glide;
 import com.icbc.icbcwelcome.R;
 import com.icbc.icbcwelcome.base.BaseActivity;
@@ -25,7 +23,6 @@ import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
 import com.youth.banner.loader.ImageLoader;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,18 +78,32 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);   //连FTP测试
-        //setContentView(R.layout.welcome);           //本地视频测试
+       // setContentView(R.layout.activity_main);   //连FTP测试
+        setContentView(R.layout.welcome);           //本地视频测试
 
         mDialog = new SpotsDialog(this);
         mDialog.getWindow().setGravity(Gravity.CENTER);
         mPresenter = new HomePresenter(this);
-        banner = (Banner) findViewById(R.id.banner);
+       // banner = (Banner) findViewById(R.id.banner);
         videoView=(VideoView) findViewById(R.id.vedio_welcome);
-        bannnerImgList = new ArrayList<>();
-        initView();
-        mPresenter.initWebSocket();
+    //    bannnerImgList = new ArrayList<>();
+//        initView();
+//        mPresenter.initWebSocket();
 
+        String uri = "android.resource://" + getPackageName() + "/" + R.raw.welcome;
+        videoView.setVideoPath(uri);
+        videoView.setVideoURI(Uri.parse(uri));
+        videoView.start();
+        //循环播放视频
+        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                String uri = "android.resource://" + getPackageName() + "/" + R.raw.welcome;
+                videoView.setVideoPath(uri);
+                videoView.setVideoURI(Uri.parse(uri));
+                videoView.start();
+            }
+        });
     /*   File file=new File(Environment.getExternalStorageDirectory()+"/test","icbc.mp4");
 
         videoView.setVideoPath();
