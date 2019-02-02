@@ -12,7 +12,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.icbc.icbcwelcome.R;
@@ -21,11 +20,8 @@ import com.icbc.icbcwelcome.config.constants;
 import com.icbc.icbcwelcome.contract.HomeContract;
 import com.icbc.icbcwelcome.json.PicData;
 import com.icbc.icbcwelcome.presenter.HomePresenter;
-
-
 import com.icbc.icbcwelcome.util.CustomVideoView;
 import com.icbc.icbcwelcome.util.ShineTextView;
-import com.icbc.icbcwelcome.util.StrokeTextView;
 import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
 import com.youth.banner.loader.ImageLoader;

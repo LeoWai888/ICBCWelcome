@@ -6,8 +6,13 @@ import android.util.Log;
 import android.widget.VideoView;
 
 import com.alibaba.fastjson.JSON;
+import com.icbc.icbcwelcome.config.constants;
 import com.icbc.icbcwelcome.contract.HomeContract;
 import com.icbc.icbcwelcome.json.PicData;
+
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.drafts.Draft_6455;
+import org.java_websocket.handshake.ServerHandshake;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,13 +29,6 @@ import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import com.icbc.icbcwelcome.config.constants;
-
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.drafts.Draft;
-import org.java_websocket.drafts.Draft_6455;
-import org.java_websocket.handshake.ServerHandshake;
 
 
 public class HomePresenter implements HomeContract.Presenter {
@@ -100,25 +98,6 @@ public class HomePresenter implements HomeContract.Presenter {
             }
         }
     };
-    // Video
-/*    @Override
-    public void initVideo(VideoView videoView,File file)
-    {
-
-        //File file=new File("./mnt/sda/sda1/Awel/test","icbc.mp4");
-      //  File file=new File(path);
-       //  videoView.setVideoPath(file.getPath());
-        VideoPlay vedio=new VideoPlay(videoView,file);
-
-
-
-       *//* File file1=new File(Environment.getExternalStorageDirectory()+"/test","icbc.mp4");
-
-        videoView.setVideoPath(file1.getPath());
-        videoView.start();
-*//*
-       }*/
-
 
     //websocket
     @Override
