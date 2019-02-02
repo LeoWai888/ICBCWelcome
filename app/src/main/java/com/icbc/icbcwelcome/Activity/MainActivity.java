@@ -2,6 +2,8 @@ package com.icbc.icbcwelcome.Activity;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.res.AssetManager;
+import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,6 +12,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.icbc.icbcwelcome.R;
@@ -21,6 +24,8 @@ import com.icbc.icbcwelcome.presenter.HomePresenter;
 
 
 import com.icbc.icbcwelcome.util.CustomVideoView;
+import com.icbc.icbcwelcome.util.ShineTextView;
+import com.icbc.icbcwelcome.util.StrokeTextView;
 import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
 import com.youth.banner.loader.ImageLoader;
@@ -44,7 +49,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
 
     Banner banner;
     private CustomVideoView videoView;
-
+    private ShineTextView tvWelcomeText;
     private RelativeLayout welcomeRL;
     private AlertDialog mDialog;//等待对话框
     private List<String> bannnerImgList;
@@ -91,6 +96,10 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         banner = (Banner) findViewById(R.id.banner);
         videoView=(CustomVideoView) findViewById(R.id.vedio_welcome);
         welcomeRL=(RelativeLayout)findViewById(R.id.welcomeRL);
+        tvWelcomeText = (ShineTextView)findViewById(R.id.tvWelComeText);
+        AssetManager assetManager = this.getApplicationContext().getAssets();
+        Typeface mtypeface=Typeface.createFromAsset(assetManager,constants.FONTTYPEFACE);
+        tvWelcomeText.setTypeface(mtypeface);
         bannnerImgList = new ArrayList<>();
         initView();
         mPresenter.initWebSocket();

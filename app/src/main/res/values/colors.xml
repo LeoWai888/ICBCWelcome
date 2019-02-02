@@ -3,5 +3,6 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
-    <color name="font_paint_color">#FFFFFF</color>
+    <color name="font_paint_color">#FFFF00</color>
+    <color name="border_text">#FFFFFF</color>
 </resources>

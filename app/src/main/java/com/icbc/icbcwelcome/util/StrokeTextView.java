@@ -1,10 +1,8 @@
 package com.icbc.icbcwelcome.util;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.text.TextPaint;
@@ -12,73 +10,72 @@ import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-@SuppressLint("AppCompatCustomView")
-public class StrokeTextView extends TextView {
-    private TextView outlineTextView = null;
+import com.icbc.icbcwelcome.R;
+import com.icbc.icbcwelcome.config.constants;
+
+public class StrokeTextView extends android.support.v7.widget.AppCompatTextView {
+
+    private TextView borderText = null;///用于描边的TextView
 
     public StrokeTextView(Context context) {
         super(context);
+        borderText = new TextView(context);
 
-        outlineTextView = new TextView(context);
-        init();
+        init(context);
     }
 
     public StrokeTextView(Context context, AttributeSet attrs) {
         super(context, attrs);
-
-        outlineTextView = new TextView(context, attrs);
-        init();
+        borderText = new TextView(context,attrs);
+        init(context);
     }
 
-    public StrokeTextView(Context context, AttributeSet attrs, int defStyle) {
+    public StrokeTextView(Context context, AttributeSet attrs,
+                          int defStyle) {
         super(context, attrs, defStyle);
-
-        outlineTextView = new TextView(context, attrs, defStyle);
-        init();
+        borderText = new TextView(context,attrs,defStyle);
+        init(context);
     }
 
-    public void init() {
-        TextPaint paint = outlineTextView.getPaint();
-        paint.setStrokeWidth(3);  //描边宽度
-        paint.setStyle(Paint.Style.STROKE);
-        outlineTextView.setTextColor(Color.parseColor("#000000"));  //描边颜色
-        outlineTextView.setGravity(getGravity());
+    public void init(Context context){
+        TextPaint tp1 = borderText.getPaint();
+        tp1.setStrokeWidth(4);                                  //设置描边宽度
+        tp1.setStyle(Paint.Style.STROKE);                             //对文字只描边
+        borderText.setTextColor(getResources().getColor(R.color.border_text));  //设置描边颜色
+        borderText.setGravity(getGravity());
+        AssetManager assetManager = context.getAssets();
+        Typeface mtypeface=Typeface.createFromAsset(assetManager,constants.FONTTYPEFACE);
+        borderText.setTypeface(mtypeface);
     }
 
     @Override
-    public void setLayoutParams (ViewGroup.LayoutParams params) {
+    public void setLayoutParams (ViewGroup.LayoutParams params){
         super.setLayoutParams(params);
-        outlineTextView.setLayoutParams(params);
+        borderText.setLayoutParams(params);
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        CharSequence tt = borderText.getText();
 
-        AssetManager manager = context.getAssets();
-        String path = "fonts/new_text.ttf";
-        Typeface type = Typeface.createFromAsset(manager, path);
-
-        //设置轮廓文字
-        CharSequence outlineText = outlineTextView.getText();
-        if (outlineText == null || !outlineText.equals(this.getText())) {
-            outlineTextView.setText(getText());
-            outlineTextView.setTypeface(type);
-            setTypeface(type);
-            postInvalidate();
+        //两个TextView上的文字必须一致
+        if(tt== null || !tt.equals(this.getText())){
+            borderText.setText(getText());
+            this.postInvalidate();
         }
-        outlineTextView.measure(widthMeasureSpec, heightMeasureSpec);
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        borderText.measure(widthMeasureSpec, heightMeasureSpec);
     }
 
-    @Override
-    protected void onLayout (boolean changed, int left, int top, int right, int bottom) {
+    protected void onLayout (boolean changed, int left, int top, int right, int bottom){
         super.onLayout(changed, left, top, right, bottom);
-        outlineTextView.layout(left, top, right, bottom);
+        borderText.layout(left, top, right, bottom);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        outlineTextView.draw(canvas);
+        borderText.draw(canvas);
         super.onDraw(canvas);
     }
+
 }

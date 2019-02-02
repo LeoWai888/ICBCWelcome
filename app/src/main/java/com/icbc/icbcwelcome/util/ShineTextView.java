@@ -1,18 +1,23 @@
-package com.icbc.icbcwelcome.Activity;
+package com.icbc.icbcwelcome.util;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Matrix;
-import android.graphics.Paint.FontMetrics;
 import android.graphics.Shader;
+import android.graphics.Typeface;
+import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.icbc.icbcwelcome.R;
+import com.icbc.icbcwelcome.config.constants;
+
 
 @SuppressLint("AppCompatCustomView")
 public class ShineTextView extends TextView {
@@ -23,26 +28,50 @@ public class ShineTextView extends TextView {
     private Paint mPaint;           //字体的笔
     int mTranslate=0;       //表示平移的速度
 
-    private float mBigFontBottom;
-    private float mBigFontHeight;
-    private int strokeSize = 1;
-    private String text;
 
-    public ShineTextView(Context context, AttributeSet attrs) {
-            super(context, attrs);
-            init();
-        }
+    private TextView borderText = null;///用于描边的TextView
 
-    private void init() {
-        mPaint = new Paint();
-        mPaint.setAntiAlias(true);
-        mPaint.setTextSize(getTextSize());
-        mPaint.setColor(getResources().getColor(R.color.font_paint_color));
-        FontMetrics fm = mPaint.getFontMetrics();
-        mBigFontBottom = fm.bottom;
-        mBigFontHeight = fm.bottom - fm.top;
+    public ShineTextView(Context context) {
+        super(context);
+        borderText = new TextView(context);
+
+        init(context);
     }
 
+    public ShineTextView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        borderText = new TextView(context,attrs);
+        init(context);
+    }
+
+    public ShineTextView(Context context, AttributeSet attrs,
+                          int defStyle) {
+        super(context, attrs, defStyle);
+        borderText = new TextView(context,attrs,defStyle);
+        init(context);
+    }
+
+    @Override
+    public void setLayoutParams (ViewGroup.LayoutParams params){
+        super.setLayoutParams(params);
+        borderText.setLayoutParams(params);
+    }
+
+    protected void onLayout (boolean changed, int left, int top, int right, int bottom){
+        super.onLayout(changed, left, top, right, bottom);
+        borderText.layout(left, top, right, bottom);
+    }
+
+    public void init(Context context){
+        TextPaint tp1 = borderText.getPaint();
+        tp1.setStrokeWidth(4);                                  //设置描边宽度
+        tp1.setStyle(Paint.Style.STROKE);                             //对文字只描边
+        borderText.setTextColor(getResources().getColor(R.color.border_text));  //设置描边颜色
+        borderText.setGravity(getGravity());
+        AssetManager assetManager = context.getAssets();
+        Typeface mtypeface=Typeface.createFromAsset(assetManager,constants.FONTTYPEFACE);
+        borderText.setTypeface(mtypeface);
+    }
     @Override
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
             super.onSizeChanged(w, h, oldw, oldh);
@@ -63,9 +92,8 @@ public class ShineTextView extends TextView {
                             new int[]{Color.YELLOW,
                                     Color.GRAY,
                                     Color.RED,
-                                    Color.BLUE,
-                                    Color.GREEN,
                                     Color.YELLOW,
+                                    Color.WHITE,
                                      }, null, Shader.TileMode.CLAMP);
 
 
@@ -80,18 +108,8 @@ public class ShineTextView extends TextView {
 
         @Override
         protected void onDraw(Canvas canvas) {
-            if (strokeSize > 0 && strokeSize < 4) {
-                float y = getPaddingTop() + mBigFontHeight - mBigFontBottom;
-                canvas.drawText(text, 0, y - strokeSize, mPaint);
-                canvas.drawText(text, 0, y + strokeSize, mPaint);
-                canvas.drawText(text, 0 + strokeSize, y, mPaint);
-                canvas.drawText(text, 0 + strokeSize, y + strokeSize, mPaint);
-                canvas.drawText(text, 0 + strokeSize, y - strokeSize, mPaint);
-                canvas.drawText(text, 0 - strokeSize, y, mPaint);
-                canvas.drawText(text, 0 - strokeSize, y + strokeSize, mPaint);
-                canvas.drawText(text, 0 - strokeSize, y - strokeSize, mPaint);
-            }
             //先让父类方法执行，由于上面我们给父类的 Paint 套上了渲染器，所以这里出现的文字已经是彩色的了
+            borderText.draw(canvas);
             super.onDraw(canvas);
 
             if (mMatrix != null) {
@@ -112,17 +130,15 @@ public class ShineTextView extends TextView {
         }
 
     @Override
-    public void setText(CharSequence text, BufferType type) {
-        super.setText(text, type);
-        this.text = text.toString();
-        invalidate();
-    }
-
-    @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (strokeSize > 0 && strokeSize < 4) {
-            setMeasuredDimension(getMeasuredWidth() + strokeSize, getMeasuredHeight());
+        CharSequence tt = borderText.getText();
+
+        //两个TextView上的文字必须一致
+        if(tt== null || !tt.equals(this.getText())){
+            borderText.setText(getText());
+            this.postInvalidate();
         }
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        borderText.measure(widthMeasureSpec, heightMeasureSpec);
     }
 }
