@@ -9,10 +9,12 @@ import java.util.Locale;
 public class Voice implements TextToSpeech.OnInitListener {
     Context context;
     private TextToSpeech tts;
-    public Voice(Context context ){
-        this.context=context;
+
+    public Voice(Context context) {
+        this.context = context;
         tts = new TextToSpeech(context, (TextToSpeech.OnInitListener) this);
     }
+
     @Override
     public void onInit(int status) {
 
@@ -36,6 +38,4 @@ public class Voice implements TextToSpeech.OnInitListener {
     public void speak(String msg) {
         tts.speak(msg, TextToSpeech.QUEUE_FLUSH, null);
     }
-
-   
 }

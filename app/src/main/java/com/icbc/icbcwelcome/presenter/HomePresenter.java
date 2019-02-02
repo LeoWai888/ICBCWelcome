@@ -36,7 +36,7 @@ public class HomePresenter implements HomeContract.Presenter {
     private FTPClient client;
     private VideoView videoView;
     //更新的轮播图片列表
-    private  List<PicData.PicDataBean> imgDataList;
+    private List<PicData.PicDataBean> imgDataList;
     private int transferringFileCount = 0;
 
     private WebSocketClient mSocketClient;
@@ -49,32 +49,36 @@ public class HomePresenter implements HomeContract.Presenter {
     /**
      * 监听文件传输的状态，上传下载时最后一个参数
      */
-    private class MyTransferListener implements FTPDataTransferListener{
+    private class MyTransferListener implements FTPDataTransferListener {
 
 
         // 文件开始上传或下载时触发
         public void started() {
 //            transferringFileCount = transferringFileCount --;
         }
+
         // 显示已经传输的字节数
         public void transferred(int length) {
         }
+
         // 文件传输完成时，触发
         public void completed() {
-            transferringFileCount = transferringFileCount -1 ;
-            if (transferringFileCount==0){
+            transferringFileCount = transferringFileCount - 1;
+            if (transferringFileCount == 0) {
                 mView.hodeLoding();
                 mView.updateBanner(imgDataList);
 
             }
         }
+
         // 传输放弃时触发
         public void aborted() {
         }
+
         // 传输失败时触发
         public void failed() {
-            transferringFileCount = transferringFileCount -1 ;
-            if (transferringFileCount==0){
+            transferringFileCount = transferringFileCount - 1;
+            if (transferringFileCount == 0) {
                 mView.hodeLoding();
                 mView.updateBanner(imgDataList);
             }
@@ -84,7 +88,7 @@ public class HomePresenter implements HomeContract.Presenter {
     /**
      * 监听文件传输的状态，上传下载时最后一个参数
      */
-    private Handler handler=new Handler(){
+    private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -92,7 +96,7 @@ public class HomePresenter implements HomeContract.Presenter {
             imgDataList = imgDataJson.getPicData();
             imgDataList = sortImgDataList(imgDataList);
             transferringFileCount = imgDataList.size();
-            if(transferringFileCount>0) {
+            if (transferringFileCount > 0) {
                 // TODO: 2019/1/25 下载发布的图片，同时更新banner列表
                 downloadFile();
             }
@@ -101,12 +105,11 @@ public class HomePresenter implements HomeContract.Presenter {
 
     //websocket
     @Override
-    public void initWebSocket()
-    {
+    public void initWebSocket() {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try{
+                try {
                     //TODO 切换URL为自己的IP
                     mSocketClient = new WebSocketClient(new URI(constants.WEBSOCKETURL), new Draft_6455()) {
 
@@ -148,7 +151,6 @@ public class HomePresenter implements HomeContract.Presenter {
     @Override
     public void start() {
     }
-
 
 
     @Override
@@ -221,10 +223,10 @@ public class HomePresenter implements HomeContract.Presenter {
         });
 
     }
-//对轮播图片列表进行排序
-    private List<PicData.PicDataBean> sortImgDataList(List<PicData.PicDataBean> imgList)
-    {
-        Collections.sort(imgList, new Comparator<PicData.PicDataBean>(){
+
+    //对轮播图片列表进行排序
+    private List<PicData.PicDataBean> sortImgDataList(List<PicData.PicDataBean> imgList) {
+        Collections.sort(imgList, new Comparator<PicData.PicDataBean>() {
             /*
              * int compare(PicData.PicDataBean p1, PicData.PicDataBean p2) 返回一个基本类型的整型，
              * 返回负数表示：p1 小于p2，
@@ -233,10 +235,10 @@ public class HomePresenter implements HomeContract.Presenter {
              */
             public int compare(PicData.PicDataBean p1, PicData.PicDataBean p2) {
                 //按照DisplayOrder对列表进行升序排列
-                if(p1.getDisplayOrder() > p2.getDisplayOrder()){
+                if (p1.getDisplayOrder() > p2.getDisplayOrder()) {
                     return 1;
                 }
-                if(p1.getDisplayOrder() == p2.getDisplayOrder()){
+                if (p1.getDisplayOrder() == p2.getDisplayOrder()) {
                     return 0;
                 }
                 return -1;
@@ -244,8 +246,8 @@ public class HomePresenter implements HomeContract.Presenter {
         });
         return imgList;
     }
-    private void downloadFile()
-    {
+
+    private void downloadFile() {
         client = new FTPClient();
         new Thread(new Runnable() {
             @Override
@@ -260,9 +262,9 @@ public class HomePresenter implements HomeContract.Presenter {
                     if (!fileDir.exists()) {
                         fileDir.mkdirs();
                     }
-                    for ( PicData.PicDataBean picFile:imgDataList ) {
+                    for (PicData.PicDataBean picFile : imgDataList) {
                         final File file = new File(String.valueOf(dir + picFile.getFileName()));
-                        client.download(picFile.getFileName(), file,new MyTransferListener());
+                        client.download(picFile.getFileName(), file, new MyTransferListener());
                     }
                 } catch (Exception e) {
                     return;
