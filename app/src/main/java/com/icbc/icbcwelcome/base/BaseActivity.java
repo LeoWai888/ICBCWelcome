@@ -15,6 +15,7 @@ import android.view.inputmethod.InputMethodManager;
 public class
 BaseActivity extends AppCompatActivity {
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,11 +26,13 @@ BaseActivity extends AppCompatActivity {
 
     private static BaseActivity INSTANCE = null;
 
-    private static Handler mHandler = new Handler() {
+    public Handler mHandler = new Handler() {
         public void handleMessage(Message msg) {
             INSTANCE.onMsgResult(msg);
-        };
+        }
     };
+
+
 
     /**
      * Message 消息回调

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_gravity="center"
     tools:context=".Activity.MainActivity">
 
 
@@ -14,5 +15,37 @@
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:layout_gravity="right" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:id="@+id/welcomeRL"
+        android:visibility="gone"
+        >
+
+        <com.icbc.icbcwelcome.util.CustomVideoView
+            android:id="@+id/vedio_welcome"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:gravity="center"
+            android:layout_alignParentTop="true"
+            android:layout_weight="1" />
+
+        <com.icbc.icbcwelcome.Activity.ShineTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:text="霓虹灯字体！霓虹灯字体！霓虹灯字体！"
+            android:textSize="100sp" />
+
+
+    </RelativeLayout>
+
+
 
 </android.support.constraint.ConstraintLayout>

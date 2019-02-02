@@ -2,14 +2,15 @@ package com.icbc.icbcwelcome.Activity;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
-import com.alibaba.fastjson.JSON;
 import com.bumptech.glide.Glide;
 import com.icbc.icbcwelcome.R;
 import com.icbc.icbcwelcome.base.BaseActivity;
@@ -19,6 +20,7 @@ import com.icbc.icbcwelcome.json.PicData;
 import com.icbc.icbcwelcome.presenter.HomePresenter;
 
 
+import com.icbc.icbcwelcome.util.CustomVideoView;
 import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
 import com.youth.banner.loader.ImageLoader;
@@ -41,9 +43,13 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     }
 
     Banner banner;
+    private CustomVideoView videoView;
+
+    private RelativeLayout welcomeRL;
     private AlertDialog mDialog;//等待对话框
     private List<String> bannnerImgList;
     private HomeContract.Presenter mPresenter;
+    int playNum = 0;
 
     @Override
     public void setPresenter(HomeContract.Presenter presenter) {
@@ -72,21 +78,51 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         });
     }
 
+
     ///////////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);   //连FTP测试
 
         mDialog = new SpotsDialog(this);
         mDialog.getWindow().setGravity(Gravity.CENTER);
         mPresenter = new HomePresenter(this);
         banner = (Banner) findViewById(R.id.banner);
+        videoView=(CustomVideoView) findViewById(R.id.vedio_welcome);
+        welcomeRL=(RelativeLayout)findViewById(R.id.welcomeRL);
         bannnerImgList = new ArrayList<>();
         initView();
         mPresenter.initWebSocket();
+        popWelcomeView();
     }
 
+
+    private void popWelcomeView(){
+        String uri = constants.LOCATPATH + "welcome.mp4";
+        videoView.setVideoPath(uri);
+        videoView.setVideoURI(Uri.parse(uri));
+        videoView.requestFocus();
+        videoView.start();
+        banner.setVisibility(View.GONE);
+        welcomeRL.setVisibility(View.VISIBLE);
+        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                playNum +=1;
+                String uri = constants.LOCATPATH + "welcome.mp4";
+                videoView.setVideoPath(uri);
+                videoView.requestFocus();
+                videoView.start();
+                if (playNum==constants.WELCOMEPLAYNUM){
+                    videoView.stopPlayback();
+                    videoView.suspend();
+                    welcomeRL.setVisibility(View.GONE);
+                    banner.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+    }
 
     private void initView() {
         mPresenter.loadBannerData();
