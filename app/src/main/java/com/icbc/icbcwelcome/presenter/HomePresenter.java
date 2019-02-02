@@ -54,7 +54,6 @@ public class HomePresenter implements HomeContract.Presenter {
 
         // 文件开始上传或下载时触发
         public void started() {
-//            transferringFileCount = transferringFileCount --;
         }
 
         // 显示已经传输的字节数
@@ -112,7 +111,6 @@ public class HomePresenter implements HomeContract.Presenter {
                 try {
                     //TODO 切换URL为自己的IP
                     mSocketClient = new WebSocketClient(new URI(constants.WEBSOCKETURL), new Draft_6455()) {
-
 
                         @Override
                         public void onOpen(ServerHandshake handshakedata) {
@@ -206,7 +204,7 @@ public class HomePresenter implements HomeContract.Presenter {
             public void onFailure(Call call, IOException e) {
 //                转圈结束
                 mView.hodeLoding();
-                Log.d("BACS", "onFailure: 获取系统值班参数失败！");
+                Log.d("BACS", "onFailure: 系统初始化失败！");
                 //弹出错误提示窗口
             }
 

@@ -102,7 +102,6 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         popWelcomeView();
     }
 
-
     private void popWelcomeView(){
         String uri = constants.LOCATPATH + "welcome.mp4";
         videoView.setVideoPath(uri);
