@@ -7,6 +7,7 @@ import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -49,6 +50,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     private RelativeLayout welcomeRL;
     private AlertDialog mDialog;//等待对话框
     private List<String> bannnerImgList;
+    private List<Integer> bannerPlayTime;
     private HomeContract.Presenter mPresenter;
     int playNum = 0;
 
@@ -97,11 +99,14 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         Typeface mtypeface=Typeface.createFromAsset(assetManager,constants.FONTTYPEFACE);
         tvWelcomeText.setTypeface(mtypeface);
         bannnerImgList = new ArrayList<>();
+        bannerPlayTime = new ArrayList<>();
         initView();
         mPresenter.initWebSocket();
         popWelcomeView();
     }
 
+
+    /*欢迎屏弹出欢迎视频，播放次数可以参数化控制*/
     private void popWelcomeView(){
         String uri = constants.LOCATPATH + "welcome.mp4";
         videoView.setVideoPath(uri);
@@ -135,28 +140,47 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
 
     public void initBanner() {
         bannnerImgList.add(constants.LOCATPATH+"loading.jpeg");
-
         banner.setBannerStyle(BannerConfig.NOT_INDICATOR);
         banner.setDelayTime(5000)
                 .setImages(bannnerImgList)
                 .setImageLoader(new GlideImageLoader())
                 .start();
+
     }
 
     public void updateBanner(List<PicData.PicDataBean>  picDatalist) {
         bannnerImgList.clear();
+        if (bannerPlayTime.size() >0 && bannerPlayTime!=null && !bannerPlayTime.isEmpty()) {
+            bannerPlayTime.clear();
+        }
         for (PicData.PicDataBean pic : picDatalist) {
             bannnerImgList.add(constants.LOCATPATH + pic.getFileName());
+            bannerPlayTime.add(pic.getDisplayTime());
         }
 
         runOnUiThread(new Runnable() {
                           @Override
                           public void run() {
                               banner.setBannerStyle(BannerConfig.NOT_INDICATOR);
-                              banner.setDelayTime(5000)
+                              banner.setDelayTime(bannerPlayTime.get(0)*1000)
                                       .setImages(bannnerImgList)
                                       .setImageLoader(new GlideImageLoader())
                                       .start();
+                              banner.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                                  @Override
+                                  public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                                  }
+
+                                  @Override
+                                  public void onPageSelected(int position) {
+                                      Log.d("onPageSelected", String.valueOf(bannerPlayTime.get(position)*1000));
+                                      banner.setDelayTime(bannerPlayTime.get(position)*1000);
+                                  }
+
+                                  @Override
+                                  public void onPageScrollStateChanged(int state) {
+                                  }
+                              });
                           }
                       });
     }

@@ -265,6 +265,7 @@ public class HomePresenter implements HomeContract.Presenter {
                         client.download(picFile.getFileName(), file, new MyTransferListener());
                     }
                 } catch (Exception e) {
+                    Log.d("download", "run: " +e);
                     return;
                 }
             }
