@@ -8,7 +8,7 @@ import android.widget.VideoView;
 import com.alibaba.fastjson.JSON;
 import com.icbc.icbcwelcome.config.constants;
 import com.icbc.icbcwelcome.contract.HomeContract;
-import com.icbc.icbcwelcome.json.PicData;
+import com.icbc.icbcwelcome.json.WelcomeData;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_6455;
@@ -36,8 +36,10 @@ public class HomePresenter implements HomeContract.Presenter {
     private FTPClient client;
     private VideoView videoView;
     //更新的轮播图片列表
-    private List<PicData.PicDataBean> imgDataList;
+    private List<WelcomeData.PicDataBean> imgDataList;
     private int transferringFileCount = 0;
+    private String welcomeMsg;
+    private int welcomeTime;
 
     private WebSocketClient mSocketClient;
 
@@ -65,7 +67,7 @@ public class HomePresenter implements HomeContract.Presenter {
             transferringFileCount = transferringFileCount - 1;
             if (transferringFileCount == 0) {
                 mView.hodeLoding();
-                mView.updateBanner(imgDataList);
+                mView.updateBanner(imgDataList,welcomeMsg,welcomeTime);
 
             }
         }
@@ -79,7 +81,7 @@ public class HomePresenter implements HomeContract.Presenter {
             transferringFileCount = transferringFileCount - 1;
             if (transferringFileCount == 0) {
                 mView.hodeLoding();
-                mView.updateBanner(imgDataList);
+                mView.updateBanner(imgDataList,welcomeMsg,welcomeTime);
             }
         }
     }
@@ -91,7 +93,7 @@ public class HomePresenter implements HomeContract.Presenter {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            PicData imgDataJson = JSON.parseObject(msg.obj.toString(), PicData.class);
+            WelcomeData imgDataJson = JSON.parseObject(msg.obj.toString(), WelcomeData.class);
             imgDataList = imgDataJson.getPicData();
             imgDataList = sortImgDataList(imgDataList);
             transferringFileCount = imgDataList.size();
@@ -120,7 +122,9 @@ public class HomePresenter implements HomeContract.Presenter {
                         @Override
                         public void onMessage(String message) {
                             Log.d("picher_log", "接收消息" + message);
-                            PicData imgDataJson = JSON.parseObject(message, PicData.class);
+                            WelcomeData imgDataJson = JSON.parseObject(message, WelcomeData.class);
+                            welcomeMsg = imgDataJson.getWelcomeMsg();
+                            welcomeTime = imgDataJson.getWelcomeTime();
                             imgDataList = imgDataJson.getPicData();
                             imgDataList = sortImgDataList(imgDataList);
                             transferringFileCount = imgDataList.size();
@@ -212,7 +216,8 @@ public class HomePresenter implements HomeContract.Presenter {
             public void onResponse(Call call, Response response) throws IOException {
                 String responseStr = response.body().string();
                 Log.d("BACS", "onResponse: " + responseStr);
-                PicData imgDataJson = JSON.parseObject(responseStr, PicData.class);
+                WelcomeData imgDataJson = JSON.parseObject(responseStr, WelcomeData.class);
+
                 imgDataList = imgDataJson.getPicData();
                 imgDataList = sortImgDataList(imgDataList);
                 transferringFileCount = imgDataList.size();
@@ -223,15 +228,15 @@ public class HomePresenter implements HomeContract.Presenter {
     }
 
     //对轮播图片列表进行排序
-    private List<PicData.PicDataBean> sortImgDataList(List<PicData.PicDataBean> imgList) {
-        Collections.sort(imgList, new Comparator<PicData.PicDataBean>() {
+    private List<WelcomeData.PicDataBean> sortImgDataList(List<WelcomeData.PicDataBean> imgList) {
+        Collections.sort(imgList, new Comparator<WelcomeData.PicDataBean>() {
             /*
              * int compare(PicData.PicDataBean p1, PicData.PicDataBean p2) 返回一个基本类型的整型，
              * 返回负数表示：p1 小于p2，
              * 返回0 表示：p1和p2相等，
              * 返回正数表示：p1大于p2
              */
-            public int compare(PicData.PicDataBean p1, PicData.PicDataBean p2) {
+            public int compare(WelcomeData.PicDataBean p1, WelcomeData.PicDataBean p2) {
                 //按照DisplayOrder对列表进行升序排列
                 if (p1.getDisplayOrder() > p2.getDisplayOrder()) {
                     return 1;
@@ -260,7 +265,7 @@ public class HomePresenter implements HomeContract.Presenter {
                     if (!fileDir.exists()) {
                         fileDir.mkdirs();
                     }
-                    for (PicData.PicDataBean picFile : imgDataList) {
+                    for (WelcomeData.PicDataBean picFile : imgDataList) {
                         final File file = new File(String.valueOf(dir + picFile.getFileName()));
                         client.download(picFile.getFileName(), file, new MyTransferListener());
                     }

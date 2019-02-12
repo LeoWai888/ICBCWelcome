@@ -19,7 +19,7 @@ import com.icbc.icbcwelcome.R;
 import com.icbc.icbcwelcome.base.BaseActivity;
 import com.icbc.icbcwelcome.config.constants;
 import com.icbc.icbcwelcome.contract.HomeContract;
-import com.icbc.icbcwelcome.json.PicData;
+import com.icbc.icbcwelcome.json.WelcomeData;
 import com.icbc.icbcwelcome.presenter.HomePresenter;
 import com.icbc.icbcwelcome.util.CustomVideoView;
 import com.icbc.icbcwelcome.util.ShineTextView;
@@ -52,7 +52,9 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     private List<String> bannnerImgList;
     private List<Integer> bannerPlayTime;
     private HomeContract.Presenter mPresenter;
-    int playNum = 0;
+    private int playNum = 0;
+    private String welcomeMsg;
+    private int welcomeTime;
 
     @Override
     public void setPresenter(HomeContract.Presenter presenter) {
@@ -100,6 +102,8 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         tvWelcomeText.setTypeface(mtypeface);
         bannnerImgList = new ArrayList<>();
         bannerPlayTime = new ArrayList<>();
+        welcomeTime = 30;
+        welcomeMsg = "热烈欢迎XXX莅临我部指导工作";
         initView();
         mPresenter.initWebSocket();
         popWelcomeView();
@@ -148,40 +152,49 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
 
     }
 
-    public void updateBanner(List<PicData.PicDataBean>  picDatalist) {
+    public void updateBanner(List<WelcomeData.PicDataBean>  picDatalist,
+                             String welMsg,
+                             int welTime) {
         bannnerImgList.clear();
         if (bannerPlayTime.size() >0 && bannerPlayTime!=null && !bannerPlayTime.isEmpty()) {
             bannerPlayTime.clear();
         }
-        for (PicData.PicDataBean pic : picDatalist) {
-            bannnerImgList.add(constants.LOCATPATH + pic.getFileName());
-            bannerPlayTime.add(pic.getDisplayTime());
+        if (welMsg!=null && welMsg!="") {
+            welcomeMsg = welMsg;
+            welcomeTime = welTime;
         }
+        if (picDatalist!=null) {
+            for (WelcomeData.PicDataBean pic : picDatalist) {
+                bannnerImgList.add(constants.LOCATPATH + pic.getFileName());
+                bannerPlayTime.add(pic.getDisplayTime());
+            }
 
-        runOnUiThread(new Runnable() {
-                          @Override
-                          public void run() {
-                              banner.setBannerStyle(BannerConfig.NOT_INDICATOR);
-                              banner.setDelayTime(bannerPlayTime.get(0)*1000)
-                                      .setImages(bannnerImgList)
-                                      .setImageLoader(new GlideImageLoader())
-                                      .start();
-                              banner.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-                                  @Override
-                                  public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                                  }
 
-                                  @Override
-                                  public void onPageSelected(int position) {
-                                      Log.d("onPageSelected", String.valueOf(bannerPlayTime.get(position)*1000));
-                                      banner.setDelayTime(bannerPlayTime.get(position)*1000);
-                                  }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    banner.setBannerStyle(BannerConfig.NOT_INDICATOR);
+                    banner.setDelayTime(bannerPlayTime.get(0) * 1000)
+                            .setImages(bannnerImgList)
+                            .setImageLoader(new GlideImageLoader())
+                            .start();
+                    banner.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                        @Override
+                        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                        }
 
-                                  @Override
-                                  public void onPageScrollStateChanged(int state) {
-                                  }
-                              });
-                          }
-                      });
+                        @Override
+                        public void onPageSelected(int position) {
+                            Log.d("onPageSelected", String.valueOf(bannerPlayTime.get(position) * 1000));
+                            banner.setDelayTime(bannerPlayTime.get(position) * 1000);
+                        }
+
+                        @Override
+                        public void onPageScrollStateChanged(int state) {
+                        }
+                    });
+                }
+            });
+        }
     }
 }
