@@ -20,4 +20,10 @@ public class constants {
 
     //欢迎字体
     public static final String FONTTYPEFACE = "dnmxingshu.ttf";
+    public static final int WELCOMEVIPCOUNT = 8;
+    public static final int WELCOMEMSGTYPE = 0;
+    /*0 ------ 只显示姓名
+    * 1 ------ 显示姓名和职务
+    * 2 ------ 只显示单位
+    * */
 }

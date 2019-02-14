@@ -8,6 +8,7 @@ import android.widget.VideoView;
 import com.alibaba.fastjson.JSON;
 import com.icbc.icbcwelcome.config.constants;
 import com.icbc.icbcwelcome.contract.HomeContract;
+import com.icbc.icbcwelcome.json.VipData;
 import com.icbc.icbcwelcome.json.WelcomeData;
 
 import org.java_websocket.client.WebSocketClient;
@@ -122,13 +123,19 @@ public class HomePresenter implements HomeContract.Presenter {
                         @Override
                         public void onMessage(String message) {
                             Log.d("picher_log", "接收消息" + message);
-                            WelcomeData imgDataJson = JSON.parseObject(message, WelcomeData.class);
-                            welcomeMsg = imgDataJson.getWelcomeMsg();
-                            welcomeTime = imgDataJson.getWelcomeTime();
-                            imgDataList = imgDataJson.getPicData();
-                            imgDataList = sortImgDataList(imgDataList);
-                            transferringFileCount = imgDataList.size();
-                            downloadFile();
+                            if (message.contains("\"ISVIP\":1")) {
+                                VipData vipDataJson = JSON.parseObject(message,VipData.class);
+                                mView.popWelcomeView(vipDataJson);
+                            }else {
+                                WelcomeData imgDataJson = JSON.parseObject(message, WelcomeData.class);
+                                welcomeMsg = imgDataJson.getWelcomeMsg();
+                                welcomeTime = imgDataJson.getWelcomeTime();
+                                imgDataList = imgDataJson.getPicData();
+                                imgDataList = sortImgDataList(imgDataList);
+                                transferringFileCount = imgDataList.size();
+                                downloadFile();
+                            }
+
                         }
 
                         @Override

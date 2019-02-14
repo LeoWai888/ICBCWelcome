@@ -19,6 +19,7 @@ import com.icbc.icbcwelcome.R;
 import com.icbc.icbcwelcome.base.BaseActivity;
 import com.icbc.icbcwelcome.config.constants;
 import com.icbc.icbcwelcome.contract.HomeContract;
+import com.icbc.icbcwelcome.json.VipData;
 import com.icbc.icbcwelcome.json.WelcomeData;
 import com.icbc.icbcwelcome.presenter.HomePresenter;
 import com.icbc.icbcwelcome.util.CustomVideoView;
@@ -27,7 +28,10 @@ import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
 import com.youth.banner.loader.ImageLoader;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import dmax.dialog.SpotsDialog;
@@ -51,6 +55,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     private AlertDialog mDialog;//等待对话框
     private List<String> bannnerImgList;
     private List<Integer> bannerPlayTime;
+    private List<VipData> vipPeopleList;
     private HomeContract.Presenter mPresenter;
     private int playNum = 0;
     private String welcomeMsg;
@@ -106,13 +111,14 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         welcomeMsg = "热烈欢迎XXX莅临我部指导工作";
         initView();
         mPresenter.initWebSocket();
-        popWelcomeView();
     }
 
 
     /*欢迎屏弹出欢迎视频，播放次数可以参数化控制*/
-    private void popWelcomeView(){
+    public void popWelcomeView(VipData vipDataJson){
         String uri = constants.LOCATPATH + "welcome.mp4";
+        welcomeMsg.replace("xxx",addVisitorList(vipDataJson));
+        tvWelcomeText.setText(welcomeMsg);
         videoView.setVideoPath(uri);
         videoView.setVideoURI(Uri.parse(uri));
         videoView.requestFocus();
@@ -196,5 +202,74 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
                 }
             });
         }
+    }
+
+    private long diffTwoDate(String fristDate,String secondDate){
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try
+        {
+            Date d1 = df.parse(fristDate);
+            Date d2 = df.parse(secondDate);
+            long diff = d1.getTime() - d2.getTime();//这样得到的差值是微秒级别
+            long days = diff / (1000 * 60 * 60 * 24);
+
+            long hours = (diff-days*(1000 * 60 * 60 * 24))/(1000* 60 * 60);
+            long minutes = (diff-days*(1000 * 60 * 60 * 24)-hours*(1000* 60 * 60))/(1000* 60);
+            return minutes;
+        }catch (Exception e)
+        {
+            return 0;
+        }
+    }
+
+    private String addVisitorList(VipData vipDataJson) {
+        boolean isInserted=false;
+        for(int j=0;j<vipPeopleList.size();j++) //判断列表内访客是否超过规定时间（10分钟）
+        {
+            if(vipPeopleList.get(j).getUSERID().equals(vipDataJson.getUSERID())) //判断是否是同一个人，同一个人数据更新
+            {
+                vipPeopleList.remove(j); //删除元素
+                j=j-1;
+                continue;
+            }
+
+            if(diffTwoDate(vipDataJson.getVIPTIME(),vipPeopleList.get(j).getVIPTIME())>welcomeTime) //大于10分钟
+            {
+                vipPeopleList.remove(j); //删除元素（后面追加）
+                j=j-1;
+                continue;
+            }
+
+            //判断是否应该插入list,判断职级的高低.2018/10/19
+            if(!isInserted && vipPeopleList.get(j).getUSERLEVEL() <
+                    vipDataJson.getUSERLEVEL())
+            {
+
+                vipPeopleList.add(j,vipDataJson);
+                isInserted=true;
+            }
+        }
+        if(!isInserted)
+        {
+            vipPeopleList.add(vipDataJson);
+        }
+        int chosenVisitorCount=constants.WELCOMEVIPCOUNT; //只播放最多前8个,2018/10/19
+        if(vipPeopleList.size()<8)
+        {
+            chosenVisitorCount=vipPeopleList.size();
+        }
+        String visitorStr = "";
+        for(int i=0;i<chosenVisitorCount;i++)
+        {
+            if (constants.WELCOMEMSGTYPE==0)
+                visitorStr = visitorStr + vipPeopleList.get(i).getUSERNAME() + "、";//只有姓名2018/10/19
+            if (constants.WELCOMEMSGTYPE==1)
+                visitorStr = visitorStr + vipPeopleList.get(i).getUSERNAME() + vipPeopleList.get(i).getTITLE() + "、";//姓名＋职务
+        }
+
+        if (!visitorStr.equals("")){
+            visitorStr = visitorStr.substring(0,visitorStr.lastIndexOf("、"));
+        }
+        return visitorStr;
     }
 }
