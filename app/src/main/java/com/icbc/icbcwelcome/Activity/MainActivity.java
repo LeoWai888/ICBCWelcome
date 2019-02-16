@@ -58,7 +58,8 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     private List<VipData> vipPeopleList;
     private HomeContract.Presenter mPresenter;
     private int playNum = 0;
-    private String welcomeMsg;
+    private String welcomeMsg="欢迎XXX莅临指导";
+    private String showText = "";
     private int welcomeTime;
 
     @Override
@@ -107,6 +108,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         tvWelcomeText.setTypeface(mtypeface);
         bannnerImgList = new ArrayList<>();
         bannerPlayTime = new ArrayList<>();
+        vipPeopleList = new ArrayList<>();
         welcomeTime = 30;
         welcomeMsg = "热烈欢迎XXX莅临我部指导工作";
         initView();
@@ -116,32 +118,43 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
 
     /*欢迎屏弹出欢迎视频，播放次数可以参数化控制*/
     public void popWelcomeView(VipData vipDataJson){
-        String uri = constants.LOCATPATH + "welcome.mp4";
-        welcomeMsg.replace("xxx",addVisitorList(vipDataJson));
-        tvWelcomeText.setText(welcomeMsg);
-        videoView.setVideoPath(uri);
-        videoView.setVideoURI(Uri.parse(uri));
-        videoView.requestFocus();
-        videoView.start();
-        banner.setVisibility(View.GONE);
-        welcomeRL.setVisibility(View.VISIBLE);
-        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                playNum +=1;
-                String uri = constants.LOCATPATH + "welcome.mp4";
-                videoView.setVideoPath(uri);
-                videoView.requestFocus();
-                videoView.start();
-                if (playNum==constants.WELCOMEPLAYNUM){
-                    videoView.stopPlayback();
-                    videoView.suspend();
-                    welcomeRL.setVisibility(View.GONE);
-                    banner.setVisibility(View.VISIBLE);
+        if (!showText.equals(welcomeMsg.replace("XXX",addVisitorList(vipDataJson)))) {
+            showText = welcomeMsg.replace("XXX", addVisitorList(vipDataJson));
+            playNum = 0;
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String uri = constants.LOCATPATH + "welcome.mp4";
+                    videoView.setVideoPath(uri);
+                    videoView.setVideoURI(Uri.parse(uri));
+                    videoView.requestFocus();
+                    videoView.start();
+                    banner.setVisibility(View.GONE);
+                    welcomeRL.setVisibility(View.VISIBLE);
+                    tvWelcomeText.setText(showText);
+                    videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                        @Override
+                        public void onCompletion(MediaPlayer mp) {
+                            playNum += 1;
+                            String uri = constants.LOCATPATH + "welcome.mp4";
+                            videoView.setVideoPath(uri);
+                            videoView.requestFocus();
+                            videoView.start();
+                            if (playNum > constants.WELCOMEPLAYNUM) {
+                                videoView.stopPlayback();
+                                videoView.suspend();
+                                welcomeRL.setVisibility(View.GONE);
+                                banner.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    });
                 }
-            }
-        });
+            });
+        }
     }
+
+
 
     private void initView() {
         mPresenter.loadBannerData();
@@ -224,29 +237,32 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
 
     private String addVisitorList(VipData vipDataJson) {
         boolean isInserted=false;
-        for(int j=0;j<vipPeopleList.size();j++) //判断列表内访客是否超过规定时间（10分钟）
-        {
-            if(vipPeopleList.get(j).getUSERID().equals(vipDataJson.getUSERID())) //判断是否是同一个人，同一个人数据更新
+        if (vipPeopleList!=null){
+            for(int j=0;j<vipPeopleList.size();j++) //判断列表内访客是否超过规定时间（10分钟）
             {
-                vipPeopleList.remove(j); //删除元素
-                j=j-1;
-                continue;
-            }
+                if(vipPeopleList.get(j).getUSERID().equals(vipDataJson.getUSERID())) //判断是否是同一个人，同一个人数据更新
+                {
+                    vipPeopleList.remove(j); //删除元素
+                    j=j-1;
+                    continue;
+                }
 
-            if(diffTwoDate(vipDataJson.getVIPTIME(),vipPeopleList.get(j).getVIPTIME())>welcomeTime) //大于10分钟
-            {
-                vipPeopleList.remove(j); //删除元素（后面追加）
-                j=j-1;
-                continue;
-            }
+                if(diffTwoDate(vipDataJson.getVIPTIME(),vipPeopleList.get(j).getVIPTIME())>welcomeTime) //大于10分钟
+                {
+                    vipPeopleList.remove(j); //删除元素（后面追加）
+                    j=j-1;
+                    showText = "";
+                    continue;
+                }
 
-            //判断是否应该插入list,判断职级的高低.2018/10/19
-            if(!isInserted && vipPeopleList.get(j).getUSERLEVEL() <
-                    vipDataJson.getUSERLEVEL())
-            {
+                //判断是否应该插入list,判断职级的高低.2018/10/19
+                if(!isInserted && vipPeopleList.get(j).getUSERLEVEL() <
+                        vipDataJson.getUSERLEVEL())
+                {
 
-                vipPeopleList.add(j,vipDataJson);
-                isInserted=true;
+                    vipPeopleList.add(j,vipDataJson);
+                    isInserted=true;
+                }
             }
         }
         if(!isInserted)

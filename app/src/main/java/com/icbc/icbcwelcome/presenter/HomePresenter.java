@@ -225,6 +225,8 @@ public class HomePresenter implements HomeContract.Presenter {
                 Log.d("BACS", "onResponse: " + responseStr);
                 WelcomeData imgDataJson = JSON.parseObject(responseStr, WelcomeData.class);
 
+                welcomeMsg = imgDataJson.getWelcomeMsg();
+                welcomeTime = imgDataJson.getWelcomeTime();
                 imgDataList = imgDataJson.getPicData();
                 imgDataList = sortImgDataList(imgDataList);
                 transferringFileCount = imgDataList.size();

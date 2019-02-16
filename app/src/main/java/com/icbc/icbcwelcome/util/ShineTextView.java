@@ -89,11 +89,11 @@ public class ShineTextView extends TextView {
                                     Color.parseColor("#FFFF0000"),
                                     Color.parseColor("#FFFFFF00") }, null, Shader.TileMode.CLAMP);*/
 
-                            new int[]{Color.YELLOW,
+                            new int[]{Color.RED,
                                     Color.GRAY,
+                                    Color.YELLOW,
                                     Color.RED,
                                     Color.YELLOW,
-                                    Color.WHITE,
                                      }, null, Shader.TileMode.CLAMP);
 
 
