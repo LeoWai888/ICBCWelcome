@@ -215,14 +215,14 @@ public class HomePresenter implements HomeContract.Presenter {
             public void onFailure(Call call, IOException e) {
 //                转圈结束
                 mView.hodeLoding();
-                Log.d("BACS", "onFailure: 系统初始化失败！");
+                Log.d("ICBCWelcome", "onFailure: 系统初始化失败！");
                 //弹出错误提示窗口
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseStr = response.body().string();
-                Log.d("BACS", "onResponse: " + responseStr);
+                Log.d("ICBCWelcome", "onResponse: " + responseStr);
                 WelcomeData imgDataJson = JSON.parseObject(responseStr, WelcomeData.class);
 
                 welcomeMsg = imgDataJson.getWelcomeMsg();
@@ -275,7 +275,7 @@ public class HomePresenter implements HomeContract.Presenter {
                         fileDir.mkdirs();
                     }
                     for (WelcomeData.PicDataBean picFile : imgDataList) {
-                        final File file = new File(String.valueOf(dir + picFile.getFileName()));
+                        final File file = new File(String.valueOf(dir + picFile.getFileName().replace(".jpg",".jpeg")));
                         client.download(picFile.getFileName(), file, new MyTransferListener());
                     }
                 } catch (Exception e) {

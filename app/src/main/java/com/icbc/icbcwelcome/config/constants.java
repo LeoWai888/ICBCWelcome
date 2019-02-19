@@ -9,7 +9,8 @@ public class constants {
     public static final String USERNAME = "root";
     public static final String PASSWORD = "icbcgd";
     public static final String REMOTEPATH = "/data/kjbupload/";
-    public static final String LOCATPATH = Environment.getExternalStorageDirectory() + "/Publish/";
+//    public static final String LOCATPATH = Environment.getExternalStorageDirectory() + "/Publish/";
+    public static final String LOCATPATH = "/mnt/sda/sda1" + "/Publish/";
 
     //webSocket
     public static final String WEBSOCKETURL= "ws://115.6.29.1:8887/websocket";

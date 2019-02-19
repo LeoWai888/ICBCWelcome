@@ -58,7 +58,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     private List<VipData> vipPeopleList;
     private HomeContract.Presenter mPresenter;
     private int playNum = 0;
-    private String welcomeMsg="欢迎XXX莅临指导";
+    private String welcomeMsg = "欢迎XXX莅临指导";
     private String showText = "";
     private int welcomeTime;
 
@@ -72,7 +72,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Log.d("BACS", "mDialog.show()");
+                Log.d("ICBCWelcome", "mDialog.show()");
                 mDialog.show();
             }
         });
@@ -83,7 +83,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Log.d("BACS", "mDialog.dismiss()");
+                Log.d("ICBCWelcome", "mDialog.dismiss()");
                 mDialog.dismiss();
             }
         });
@@ -100,11 +100,11 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         mDialog.getWindow().setGravity(Gravity.CENTER);
         mPresenter = new HomePresenter(this);
         banner = (Banner) findViewById(R.id.banner);
-        videoView=(CustomVideoView) findViewById(R.id.vedio_welcome);
-        welcomeRL=(RelativeLayout)findViewById(R.id.welcomeRL);
-        tvWelcomeText = (ShineTextView)findViewById(R.id.tvWelComeText);
+        videoView = (CustomVideoView) findViewById(R.id.vedio_welcome);
+        welcomeRL = (RelativeLayout) findViewById(R.id.welcomeRL);
+        tvWelcomeText = (ShineTextView) findViewById(R.id.tvWelComeText);
         AssetManager assetManager = this.getApplicationContext().getAssets();
-        Typeface mtypeface=Typeface.createFromAsset(assetManager,constants.FONTTYPEFACE);
+        Typeface mtypeface = Typeface.createFromAsset(assetManager, constants.FONTTYPEFACE);
         tvWelcomeText.setTypeface(mtypeface);
         bannnerImgList = new ArrayList<>();
         bannerPlayTime = new ArrayList<>();
@@ -117,8 +117,8 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
 
 
     /*欢迎屏弹出欢迎视频，播放次数可以参数化控制*/
-    public void popWelcomeView(VipData vipDataJson){
-        if (!showText.equals(welcomeMsg.replace("XXX",addVisitorList(vipDataJson)))) {
+    public void popWelcomeView(VipData vipDataJson) {
+        if (!showText.equals(welcomeMsg.replace("XXX", addVisitorList(vipDataJson)))) {
             showText = welcomeMsg.replace("XXX", addVisitorList(vipDataJson));
             playNum = 0;
 
@@ -155,14 +155,14 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     }
 
 
-
     private void initView() {
-        mPresenter.loadBannerData();
         initBanner();
+        mPresenter.loadBannerData();
     }
 
     public void initBanner() {
-        bannnerImgList.add(constants.LOCATPATH+"loading.jpeg");
+        bannnerImgList.add(constants.LOCATPATH + "loading.jpeg");
+//        Toast.makeText(this,getApplicationContext().getFilesDir().getAbsolutePath(),Toast.LENGTH_LONG).show();;
         banner.setBannerStyle(BannerConfig.NOT_INDICATOR);
         banner.setDelayTime(5000)
                 .setImages(bannnerImgList)
@@ -171,18 +171,18 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
 
     }
 
-    public void updateBanner(List<WelcomeData.PicDataBean>  picDatalist,
+    public void updateBanner(List<WelcomeData.PicDataBean> picDatalist,
                              String welMsg,
                              int welTime) {
         bannnerImgList.clear();
-        if (bannerPlayTime.size() >0 && bannerPlayTime!=null && !bannerPlayTime.isEmpty()) {
+        if (bannerPlayTime.size() > 0 && bannerPlayTime != null && !bannerPlayTime.isEmpty()) {
             bannerPlayTime.clear();
         }
-        if (welMsg!=null && welMsg!="") {
+        if (welMsg != null && welMsg != "") {
             welcomeMsg = welMsg;
             welcomeTime = welTime;
         }
-        if (picDatalist!=null) {
+        if (picDatalist != null) {
             for (WelcomeData.PicDataBean pic : picDatalist) {
                 bannnerImgList.add(constants.LOCATPATH + pic.getFileName());
                 bannerPlayTime.add(pic.getDisplayTime());
@@ -217,74 +217,68 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         }
     }
 
-    private long diffTwoDate(String fristDate,String secondDate){
+    private long diffTwoDate(String fristDate, String secondDate) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        try
-        {
+        try {
             Date d1 = df.parse(fristDate);
             Date d2 = df.parse(secondDate);
             long diff = d1.getTime() - d2.getTime();//这样得到的差值是微秒级别
             long days = diff / (1000 * 60 * 60 * 24);
 
-            long hours = (diff-days*(1000 * 60 * 60 * 24))/(1000* 60 * 60);
-            long minutes = (diff-days*(1000 * 60 * 60 * 24)-hours*(1000* 60 * 60))/(1000* 60);
+            long hours = (diff - days * (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
+            long minutes = (diff - days * (1000 * 60 * 60 * 24) - hours * (1000 * 60 * 60)) / (1000 * 60);
             return minutes;
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             return 0;
         }
     }
 
     private String addVisitorList(VipData vipDataJson) {
-        boolean isInserted=false;
-        if (vipPeopleList!=null){
-            for(int j=0;j<vipPeopleList.size();j++) //判断列表内访客是否超过规定时间（10分钟）
+        boolean isInserted = false;
+        if (vipPeopleList != null) {
+            for (int j = 0; j < vipPeopleList.size(); j++) //判断列表内访客是否超过规定时间（10分钟）
             {
-                if(vipPeopleList.get(j).getUSERID().equals(vipDataJson.getUSERID())) //判断是否是同一个人，同一个人数据更新
+                if (vipPeopleList.get(j).getUSERID().equals(vipDataJson.getUSERID())) //判断是否是同一个人，同一个人数据更新
                 {
                     vipPeopleList.remove(j); //删除元素
-                    j=j-1;
+                    j = j - 1;
                     continue;
                 }
 
-                if(diffTwoDate(vipDataJson.getVIPTIME(),vipPeopleList.get(j).getVIPTIME())>welcomeTime) //大于10分钟
+                if (diffTwoDate(vipDataJson.getVIPTIME(), vipPeopleList.get(j).getVIPTIME()) > welcomeTime) //大于10分钟
                 {
                     vipPeopleList.remove(j); //删除元素（后面追加）
-                    j=j-1;
+                    j = j - 1;
                     showText = "";
                     continue;
                 }
 
                 //判断是否应该插入list,判断职级的高低.2018/10/19
-                if(!isInserted && vipPeopleList.get(j).getUSERLEVEL() <
-                        vipDataJson.getUSERLEVEL())
-                {
+                if (!isInserted && vipPeopleList.get(j).getUSERLEVEL() <
+                        vipDataJson.getUSERLEVEL()) {
 
-                    vipPeopleList.add(j,vipDataJson);
-                    isInserted=true;
+                    vipPeopleList.add(j, vipDataJson);
+                    isInserted = true;
                 }
             }
         }
-        if(!isInserted)
-        {
+        if (!isInserted) {
             vipPeopleList.add(vipDataJson);
         }
-        int chosenVisitorCount=constants.WELCOMEVIPCOUNT; //只播放最多前8个,2018/10/19
-        if(vipPeopleList.size()<8)
-        {
-            chosenVisitorCount=vipPeopleList.size();
+        int chosenVisitorCount = constants.WELCOMEVIPCOUNT; //只播放最多前8个,2018/10/19
+        if (vipPeopleList.size() < 8) {
+            chosenVisitorCount = vipPeopleList.size();
         }
         String visitorStr = "";
-        for(int i=0;i<chosenVisitorCount;i++)
-        {
-            if (constants.WELCOMEMSGTYPE==0)
+        for (int i = 0; i < chosenVisitorCount; i++) {
+            if (constants.WELCOMEMSGTYPE == 0)
                 visitorStr = visitorStr + vipPeopleList.get(i).getUSERNAME() + "、";//只有姓名2018/10/19
-            if (constants.WELCOMEMSGTYPE==1)
+            if (constants.WELCOMEMSGTYPE == 1)
                 visitorStr = visitorStr + vipPeopleList.get(i).getUSERNAME() + vipPeopleList.get(i).getTITLE() + "、";//姓名＋职务
         }
 
-        if (!visitorStr.equals("")){
-            visitorStr = visitorStr.substring(0,visitorStr.lastIndexOf("、"));
+        if (!visitorStr.equals("")) {
+            visitorStr = visitorStr.substring(0, visitorStr.lastIndexOf("、"));
         }
         return visitorStr;
     }

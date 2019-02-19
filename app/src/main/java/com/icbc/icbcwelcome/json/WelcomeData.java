@@ -10,9 +10,9 @@ public class WelcomeData {
      * welcomeTime : 30
      */
 
-    private String welcomeMsg=null;
-    private int welcomeTime=0;
-    private List<PicDataBean> picData =null;
+    private String welcomeMsg = null;
+    private int welcomeTime = 0;
+    private List<PicDataBean> picData = null;
 
     public String getWelcomeMsg() {
         return welcomeMsg;

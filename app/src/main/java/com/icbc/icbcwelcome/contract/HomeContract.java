@@ -11,14 +11,16 @@ import java.util.List;
 public interface HomeContract {
 
     interface View extends BaseView<Presenter> {
-        void updateBanner(List<WelcomeData.PicDataBean>  picDatalist,
+        void updateBanner(List<WelcomeData.PicDataBean> picDatalist,
                           String welcomeMsg,
                           int welcomeTime);
+
         void popWelcomeView(VipData vipDataJson);
     }
 
     interface Presenter extends BasePresenter {
         void loadBannerData();
+
         void initWebSocket();
     }
 
