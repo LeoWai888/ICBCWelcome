@@ -50,7 +50,7 @@ public class WelcomeData {
         private int displayOrder;
 
         public String getFileName() {
-            return fileName.replace(".jpg",".jpeg");
+            return fileName;
         }
 
         public void setFileName(String fileName) {

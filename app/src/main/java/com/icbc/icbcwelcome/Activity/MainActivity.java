@@ -184,7 +184,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         }
         if (picDatalist != null) {
             for (WelcomeData.PicDataBean pic : picDatalist) {
-                bannnerImgList.add(constants.LOCATPATH + pic.getFileName());
+                bannnerImgList.add(constants.LOCATPATH + pic.getFileName().replace(".jpg",".jpeg"));
                 bannerPlayTime.add(pic.getDisplayTime());
             }
 
