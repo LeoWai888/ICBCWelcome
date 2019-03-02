@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.icbc.icbcwelcome">
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -16,6 +17,7 @@
     <!-- 在 屏幕最顶部显示addview -->
     <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" />
     <application
+        tools:replace="icon,label,theme"
         android:allowBackup="true"
         android:icon="@drawable/welcome"
         android:label="智慧欢迎屏"
@@ -25,7 +27,6 @@
         <activity android:name=".Activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

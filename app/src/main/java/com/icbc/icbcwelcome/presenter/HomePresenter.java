@@ -25,6 +25,8 @@ import java.util.List;
 
 import it.sauronsoftware.ftp4j.FTPClient;
 import it.sauronsoftware.ftp4j.FTPDataTransferListener;
+import it.sauronsoftware.ftp4j.FTPFile;
+import it.sauronsoftware.ftp4j.FTPReply;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -69,7 +71,6 @@ public class HomePresenter implements HomeContract.Presenter {
             if (transferringFileCount == 0) {
                 mView.hodeLoding();
                 mView.updateBanner(imgDataList,welcomeMsg,welcomeTime);
-
             }
         }
 
@@ -133,7 +134,12 @@ public class HomePresenter implements HomeContract.Presenter {
                                 imgDataList = imgDataJson.getPicData();
                                 imgDataList = sortImgDataList(imgDataList);
                                 transferringFileCount = imgDataList.size();
-                                downloadFile();
+                                Log.d("welcomeMsg", "onMessage: welcomeMsg is" + welcomeMsg +";" +
+                                                                           "welcomeTime is " + welcomeTime + ";" +
+                                                                           "transferringFileCount is " + transferringFileCount);
+                                if (transferringFileCount>0) {
+                                    downloadFile();
+                                }
                             }
 
                         }
@@ -267,7 +273,12 @@ public class HomePresenter implements HomeContract.Presenter {
                 try {
                     client.connect(constants.HOST, constants.PORT);
                     client.login(constants.USERNAME, constants.PASSWORD);
+//                    Log.d("ftpClient", client.getCharset());
+                    client.setCharset("GBK");
+                    client.setType(FTPClient.TYPE_BINARY);
+                    Log.d("ftpClient", client.getCharset());
                     client.changeDirectory(constants.REMOTEPATH);
+
                     String dir = constants.LOCATPATH;
 
                     File fileDir = new File(dir);
@@ -276,6 +287,7 @@ public class HomePresenter implements HomeContract.Presenter {
                     }
                     for (WelcomeData.PicDataBean picFile : imgDataList) {
                         final File file = new File(String.valueOf(dir + picFile.getFileName().replace(".jpg",".jpeg")));
+                        Log.d("ftpClient", picFile.getFileName());
                         client.download(picFile.getFileName(), file, new MyTransferListener());
                     }
                 } catch (Exception e) {
