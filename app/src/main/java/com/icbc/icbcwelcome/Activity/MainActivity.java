@@ -3,10 +3,13 @@ package com.icbc.icbcwelcome.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Gravity;
@@ -24,6 +27,7 @@ import com.icbc.icbcwelcome.json.WelcomeData;
 import com.icbc.icbcwelcome.presenter.HomePresenter;
 import com.icbc.icbcwelcome.util.CustomVideoView;
 import com.icbc.icbcwelcome.util.ShineTextView;
+import com.icbc.icbcwelcome.util.checks.ShapeRevealSample;
 import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
 import com.youth.banner.loader.ImageLoader;
@@ -35,6 +39,7 @@ import java.util.Date;
 import java.util.List;
 
 import dmax.dialog.SpotsDialog;
+import su.levenetc.android.textsurface.TextSurface;
 
 public class MainActivity extends BaseActivity implements HomeContract.View {
 
@@ -61,6 +66,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     private String welcomeMsg = "欢迎XXX莅临指导";
     private String showText = "";
     private int welcomeTime;
+    private TextSurface textBirthday;
 
     @Override
     public void setPresenter(HomeContract.Presenter presenter) {
@@ -103,23 +109,30 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         videoView = (CustomVideoView) findViewById(R.id.vedio_welcome);
         welcomeRL = (RelativeLayout) findViewById(R.id.welcomeRL);
         tvWelcomeText = (ShineTextView) findViewById(R.id.tvWelComeText);
+        textBirthday = (TextSurface) findViewById(R.id.birthday_text);
         AssetManager assetManager = this.getApplicationContext().getAssets();
         Typeface mtypeface = Typeface.createFromAsset(assetManager, constants.FONTTYPEFACE);
         tvWelcomeText.setTypeface(mtypeface);
         bannnerImgList = new ArrayList<>();
         bannerPlayTime = new ArrayList<>();
         vipPeopleList = new ArrayList<>();
-        welcomeTime = 30;
+        welcomeTime = 10;
         welcomeMsg = "热烈欢迎XXX莅临我部指导工作";
         initView();
         mPresenter.initWebSocket();
+        Log.d("welcomeMsg", "onCreate: " + vipPeopleList.size());
     }
 
 
     /*欢迎屏弹出欢迎视频，播放次数可以参数化控制*/
-    public void popWelcomeView(VipData vipDataJson) {
-        if (!showText.equals(welcomeMsg.replace("XXX", addVisitorList(vipDataJson)))) {
-            showText = welcomeMsg.replace("XXX", addVisitorList(vipDataJson));
+    public void popWelcomeView(VipData _vipDataJson) {
+        Log.d("welcomeMsg", "welcomeMsg: " + welcomeMsg);
+
+        String vipPeople = addVisitorList(_vipDataJson);
+        if (!showText.equals(welcomeMsg.replace("XXX", vipPeople))) {
+            showText = welcomeMsg.replace("XXX", vipPeople);
+            Log.d("welcomeMsg", "showText: " + showText);
+
             playNum = 0;
 
             runOnUiThread(new Runnable() {
@@ -151,13 +164,31 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
                     });
                 }
             });
+            onRemoveMsgs(R.id.init_welcome_state);
+            onSendMsgDelayed(R.id.init_welcome_state, null, 1000*welcomeTime);
         }
     }
 
 
+    private void initBirthDayView() {
+        textBirthday.setVisibility(View.VISIBLE);
+        textBirthday.setScrollBarSize(100);
+        textBirthday.postDelayed(new Runnable() {
+            @Override public void run() {
+                show();
+            }
+        }, 1000);
+    }
+
     private void initView() {
+        initBirthDayView();
         initBanner();
         mPresenter.loadBannerData();
+    }
+
+    private void show() {
+        textBirthday.reset();
+        ShapeRevealSample.play(textBirthday);
     }
 
     public void initBanner() {
@@ -169,6 +200,57 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
                 .setImageLoader(new GlideImageLoader())
                 .start();
 
+    }
+
+    private String addVisitorList(VipData __vipDataJson) {
+        boolean isInserted = false;
+        if ((vipPeopleList != null)&&(vipPeopleList.size()>0)) {
+            int idx=0;
+            for (VipData vipPeopleItem:vipPeopleList){
+                if (vipPeopleItem.getUSERID().equals(__vipDataJson.getUSERID())){
+                    vipPeopleList.remove(vipPeopleItem);
+                    Log.d("welcomeMsg", "addVisitorList: remove "+vipPeopleItem.getUSERNAME() );
+                    continue;
+                }
+                Log.d("welcomeMsg", "addVisitorList: difftime is " + diffTwoDate(__vipDataJson.getVIPTIME(),vipPeopleItem.getVIPTIME()) );
+                if (diffTwoDate(__vipDataJson.getVIPTIME(),vipPeopleItem.getVIPTIME()) > welcomeTime) //大于设定好的时间
+                {
+                    vipPeopleList.remove(vipPeopleItem); //删除元素（后面追加）
+                    Log.d("welcomeMsg", "addVisitorList: remove "+vipPeopleItem.getUSERNAME() + "; time :" +  vipPeopleItem.getVIPTIME());
+                    continue;
+                }
+
+                //判断是否应该插入list,判断职级的高低.2018/10/19
+                if (!isInserted && vipPeopleItem.getUSERLEVEL() <
+                        __vipDataJson.getUSERLEVEL()) {
+                    idx =  vipPeopleList.indexOf(vipPeopleItem);
+                    vipPeopleList.add(idx, __vipDataJson);
+                    Log.d("welcomeMsg", "addVisitorList: insert " + __vipDataJson.getUSERNAME() + "; time:"+__vipDataJson.getVIPTIME());
+                    isInserted = true;
+                }
+            }
+        }
+        if (!isInserted) {
+            vipPeopleList.add(__vipDataJson);
+            Log.d("welcomeMsg", "addVisitorList: insert " + __vipDataJson.getUSERNAME() + "; time:"+__vipDataJson.getVIPTIME());
+        }
+        int chosenVisitorCount = constants.WELCOMEVIPCOUNT; //只播放最多前constants.WELCOMEVIPCOUNT个,2018/10/19
+        if (vipPeopleList.size() < chosenVisitorCount) {
+            chosenVisitorCount = vipPeopleList.size();
+        }
+        String visitorStr = "";
+        for (int i = 0; i < chosenVisitorCount; i++) {
+            if (constants.WELCOMEMSGTYPE == 0)
+                visitorStr = visitorStr + vipPeopleList.get(i).getUSERNAME() + "、";//只有姓名2018/10/19
+            if (constants.WELCOMEMSGTYPE == 1)
+                visitorStr = visitorStr + vipPeopleList.get(i).getUSERNAME() + vipPeopleList.get(i).getTITLE() + "、";//姓名＋职务
+        }
+
+        if (!visitorStr.equals("")) {
+            visitorStr = visitorStr.substring(0, visitorStr.lastIndexOf("、"));
+        }
+        Log.d("welcomeMsg", "addVisitorList: msg is " + visitorStr);
+        return visitorStr;
     }
 
     public void updateBanner(List<WelcomeData.PicDataBean> picDatalist,
@@ -233,53 +315,13 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         }
     }
 
-    private String addVisitorList(VipData vipDataJson) {
-        boolean isInserted = false;
-        if (vipPeopleList != null) {
-            for (int j = 0; j < vipPeopleList.size(); j++) //判断列表内访客是否超过规定时间（10分钟）
-            {
-                if (vipPeopleList.get(j).getUSERID().equals(vipDataJson.getUSERID())) //判断是否是同一个人，同一个人数据更新
-                {
-                    vipPeopleList.remove(j); //删除元素
-                    j = j - 1;
-                    continue;
-                }
-
-                if (diffTwoDate(vipDataJson.getVIPTIME(), vipPeopleList.get(j).getVIPTIME()) > welcomeTime) //大于10分钟
-                {
-                    vipPeopleList.remove(j); //删除元素（后面追加）
-                    j = j - 1;
-                    showText = "";
-                    continue;
-                }
-
-                //判断是否应该插入list,判断职级的高低.2018/10/19
-                if (!isInserted && vipPeopleList.get(j).getUSERLEVEL() <
-                        vipDataJson.getUSERLEVEL()) {
-
-                    vipPeopleList.add(j, vipDataJson);
-                    isInserted = true;
-                }
-            }
+    @Override
+    protected void onMsgResult(Message msg) {
+        super.onMsgResult(msg);
+        switch (msg.what) {
+            case R.id.init_welcome_state:
+                showText = "";
+                break;
         }
-        if (!isInserted) {
-            vipPeopleList.add(vipDataJson);
-        }
-        int chosenVisitorCount = constants.WELCOMEVIPCOUNT; //只播放最多前8个,2018/10/19
-        if (vipPeopleList.size() < 8) {
-            chosenVisitorCount = vipPeopleList.size();
-        }
-        String visitorStr = "";
-        for (int i = 0; i < chosenVisitorCount; i++) {
-            if (constants.WELCOMEMSGTYPE == 0)
-                visitorStr = visitorStr + vipPeopleList.get(i).getUSERNAME() + "、";//只有姓名2018/10/19
-            if (constants.WELCOMEMSGTYPE == 1)
-                visitorStr = visitorStr + vipPeopleList.get(i).getUSERNAME() + vipPeopleList.get(i).getTITLE() + "、";//姓名＋职务
-        }
-
-        if (!visitorStr.equals("")) {
-            visitorStr = visitorStr.substring(0, visitorStr.lastIndexOf("、"));
-        }
-        return visitorStr;
     }
 }
