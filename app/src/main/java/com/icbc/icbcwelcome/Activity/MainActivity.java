@@ -67,6 +67,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     private String showText = "";
     private int welcomeTime;
     private TextSurface textBirthday;
+    private TextSurface bottomTips;
 
     @Override
     public void setPresenter(HomeContract.Presenter presenter) {
@@ -110,6 +111,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         welcomeRL = (RelativeLayout) findViewById(R.id.welcomeRL);
         tvWelcomeText = (ShineTextView) findViewById(R.id.tvWelComeText);
         textBirthday = (TextSurface) findViewById(R.id.birthday_text);
+        bottomTips=(TextSurface)findViewById(R.id.bottomTips_text);
         AssetManager assetManager = this.getApplicationContext().getAssets();
         Typeface mtypeface = Typeface.createFromAsset(assetManager, constants.FONTTYPEFACE);
         tvWelcomeText.setTypeface(mtypeface);
@@ -172,8 +174,18 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
 
     private void initBirthDayView() {
         textBirthday.setVisibility(View.VISIBLE);
-        textBirthday.setScrollBarSize(100);
+        textBirthday.setScrollBarSize(150);
         textBirthday.postDelayed(new Runnable() {
+            @Override public void run() {
+                show();
+            }
+        }, 1000);
+    }
+
+    private void initBottomTips() {
+        bottomTips.setVisibility(View.VISIBLE);
+        bottomTips.setScrollBarSize(100);
+        bottomTips.postDelayed(new Runnable() {
             @Override public void run() {
                 show();
             }
@@ -183,12 +195,15 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     private void initView() {
         initBirthDayView();
         initBanner();
+        initBottomTips();
         mPresenter.loadBannerData();
     }
 
     private void show() {
         textBirthday.reset();
+        bottomTips.reset();
         ShapeRevealSample.play(textBirthday);
+        ShapeRevealSample.play1(bottomTips);
     }
 
     public void initBanner() {

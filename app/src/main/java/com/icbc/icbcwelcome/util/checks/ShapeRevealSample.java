@@ -27,12 +27,52 @@ import su.levenetc.android.textsurface.contants.Side;
 public class ShapeRevealSample {
 	public static void play(TextSurface textSurface) {
 
-		Text textA = TextBuilder.create("XXX：").setSize(80).setColor(Color.RED).setPosition(Align.SURFACE_CENTER).build();
+		Text textA = TextBuilder.create("XXX：").setSize(70).setColor(Color.RED).setPosition(Align.SURFACE_CENTER).build();
 
-		Text textB = TextBuilder.create("让我们为您祝福，让我们为您欢笑，").setSize(60).setColor(Color.RED).setPosition(Align.BOTTOM_OF | Align.CENTER_OF, textA).build();
-		Text textC = TextBuilder.create("因为今天是您的生日，").setSize(60).setColor(Color.RED).setPosition(Align.BOTTOM_OF | Align.CENTER_OF, textB).build();
-		Text textD = TextBuilder.create("我们把缀满幸福快乐和平安的祝福悄然奉送，").setSize(60).setColor(Color.RED).setPosition(Align.BOTTOM_OF | Align.CENTER_OF, textC).build();
-		Text textE = TextBuilder.create("祝您：心想事成!幸福快乐!生日快乐!").setSize(60).setColor(Color.RED).setPosition(Align.BOTTOM_OF | Align.CENTER_OF, textD).build();
+		Text textB = TextBuilder.create("    让我们为您祝福，让我们为您欢笑，").setSize(40).setColor(Color.RED).setPosition(Align.BOTTOM_OF , textA).build();
+		Text textC = TextBuilder.create("    因为今天是您的生日，").setSize(40).setColor(Color.RED).setPosition(Align.BOTTOM_OF, textB).build();
+		Text textD = TextBuilder.create("    我们把缀满幸福快乐和平安的祝福悄然奉送，").setSize(40).setColor(Color.RED).setPosition(Align.BOTTOM_OF , textC).build();
+		Text textE = TextBuilder.create("    祝您：心想事成!幸福快乐!生日快乐!").setSize(40).setColor(Color.RED).setPosition(Align.BOTTOM_OF , textD).build();
+
+		final int flash = 1500;
+
+		textSurface.play(TYPE.SEQUENTIAL,
+				Rotate3D.showFromCenter(textA, 500, Direction.CLOCK, Axis.X),
+				new AnimationsSet(TYPE.PARALLEL,
+						ShapeReveal.create(textA, flash, SideCut.hide(Side.LEFT), false),
+						new AnimationsSet(TYPE.SEQUENTIAL, Delay.duration(flash / 5), ShapeReveal.create(textA, flash, SideCut.show(Side.LEFT), false))
+				),
+				new AnimationsSet(TYPE.PARALLEL,
+						Rotate3D.showFromSide(textB, 500, Pivot.TOP),
+						new TransSurface(500, textB, Pivot.CENTER)
+				),
+				Delay.duration(500),
+				new AnimationsSet(TYPE.PARALLEL,
+						Slide.showFrom(Side.TOP, textC, 500),
+						new TransSurface(1000, textC, Pivot.CENTER)
+				),
+				Delay.duration(500),
+				new AnimationsSet(TYPE.PARALLEL,
+						Slide.showFrom(Side.TOP, textD, 500),
+						new TransSurface(1500, textD, Pivot.CENTER)
+				),
+				Delay.duration(500),
+				new AnimationsSet(TYPE.PARALLEL,
+						ShapeReveal.create(textE, 500, Circle.show(Side.CENTER, Direction.OUT), false),
+						new TransSurface(2000, textE, Pivot.CENTER)
+				),
+				Delay.duration(500)
+
+		);
+	}
+
+	public static void play1(TextSurface textSurface) {
+
+		Text textA = TextBuilder.create("新闻A").setSize(30).setColor(Color.RED).setPosition(Align.SURFACE_CENTER).build();
+		Text textB = TextBuilder.create("新闻B").setSize(30).setColor(Color.RED).setPosition(Align.RIGHT_OF | Align.CENTER_OF, textA).build();
+		Text textC = TextBuilder.create("新闻C").setSize(30).setColor(Color.RED).setPosition(Align.RIGHT_OF | Align.CENTER_OF, textB).build();
+		Text textD = TextBuilder.create("新闻D").setSize(30).setColor(Color.RED).setPosition(Align.RIGHT_OF | Align.CENTER_OF , textC).build();
+		Text textE = TextBuilder.create("新闻E").setSize(30).setColor(Color.RED).setPosition(Align.RIGHT_OF | Align.CENTER_OF , textD).build();
 
 		final int flash = 1500;
 
