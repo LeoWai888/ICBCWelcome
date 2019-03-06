@@ -12,6 +12,9 @@ public class WelcomeData {
 
     private String welcomeMsg = null;
     private int welcomeTime = 0;
+    private String rollMsg = null;
+    private int rollDisTime = 0;
+    private String rollMsgSendTime = null;
     private List<PicDataBean> picData = null;
 
     public String getWelcomeMsg() {
@@ -30,6 +33,30 @@ public class WelcomeData {
         this.welcomeTime = welcomeTime;
     }
 
+
+    public String getRollMsg() {
+        return rollMsg;
+    }
+
+    public void setRollMsg(String rollMsg) {
+        this.rollMsg = rollMsg;
+    }
+
+    public int getRollDisTime() {
+        return rollDisTime;
+    }
+
+    public void setRollDisTime(int rollDisTime) {
+        this.rollDisTime = rollDisTime;
+    }
+
+    public String getRollMsgSendTime() {
+        return rollMsgSendTime;
+    }
+
+    public void setRollMsgSendTime(String rollMsgSendTime) {
+        this.rollMsgSendTime = rollMsgSendTime;
+    }
     public List<PicDataBean> getPicData() {
         return picData;
     }

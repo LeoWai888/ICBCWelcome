@@ -3,8 +3,6 @@ package com.icbc.icbcwelcome.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.graphics.Bitmap;
-import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -22,7 +20,7 @@ import com.icbc.icbcwelcome.R;
 import com.icbc.icbcwelcome.base.BaseActivity;
 import com.icbc.icbcwelcome.config.constants;
 import com.icbc.icbcwelcome.contract.HomeContract;
-import com.icbc.icbcwelcome.json.VipData;
+import com.icbc.icbcwelcome.json.MsgData;
 import com.icbc.icbcwelcome.json.WelcomeData;
 import com.icbc.icbcwelcome.presenter.HomePresenter;
 import com.icbc.icbcwelcome.util.CustomVideoView;
@@ -43,6 +41,7 @@ import su.levenetc.android.textsurface.TextSurface;
 
 public class MainActivity extends BaseActivity implements HomeContract.View {
 
+
     private class GlideImageLoader extends ImageLoader {
         @Override
         public void displayImage(Context context, Object path, ImageView imageView) {
@@ -60,14 +59,18 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     private AlertDialog mDialog;//等待对话框
     private List<String> bannnerImgList;
     private List<Integer> bannerPlayTime;
-    private List<VipData> vipPeopleList;
+    private List<MsgData> vipPeopleList;
+    private List<MsgData> birthPeopleList;
     private HomeContract.Presenter mPresenter;
     private int playNum = 0;
     private String welcomeMsg = "欢迎XXX莅临指导";
+    private String birthDayMsg = "";
+    private String rollMsg = "";
+    private int rollDipTime;
+    private String rollMsgSendTime;
     private String showText = "";
     private int welcomeTime;
     private TextSurface textBirthday;
-    private TextSurface bottomTips;
 
     @Override
     public void setPresenter(HomeContract.Presenter presenter) {
@@ -111,13 +114,13 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         welcomeRL = (RelativeLayout) findViewById(R.id.welcomeRL);
         tvWelcomeText = (ShineTextView) findViewById(R.id.tvWelComeText);
         textBirthday = (TextSurface) findViewById(R.id.birthday_text);
-        bottomTips=(TextSurface)findViewById(R.id.bottomTips_text);
         AssetManager assetManager = this.getApplicationContext().getAssets();
         Typeface mtypeface = Typeface.createFromAsset(assetManager, constants.FONTTYPEFACE);
         tvWelcomeText.setTypeface(mtypeface);
         bannnerImgList = new ArrayList<>();
         bannerPlayTime = new ArrayList<>();
         vipPeopleList = new ArrayList<>();
+        birthPeopleList = new ArrayList<>();
         welcomeTime = 10;
         welcomeMsg = "热烈欢迎XXX莅临我部指导工作";
         initView();
@@ -126,84 +129,155 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     }
 
 
+
     /*欢迎屏弹出欢迎视频，播放次数可以参数化控制*/
-    public void popWelcomeView(VipData _vipDataJson) {
+    public void popVideoView(MsgData _msgDataJson,String msgType) {
         Log.d("welcomeMsg", "welcomeMsg: " + welcomeMsg);
 
-        String vipPeople = addVisitorList(_vipDataJson);
-        if (!showText.equals(welcomeMsg.replace("XXX", vipPeople))) {
-            showText = welcomeMsg.replace("XXX", vipPeople);
-            Log.d("welcomeMsg", "showText: " + showText);
+        if (msgType.equals("ISVIP")){
+            String vipPeople = addVisitorList(_msgDataJson);
+            if (!showText.equals(welcomeMsg.replace("XXX", vipPeople))) {
+                showText = welcomeMsg.replace("XXX", vipPeople);
+                Log.d("welcomeMsg", "showText: " + showText);
+                playVideo(msgType);
+            }
 
-            playNum = 0;
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    String uri = constants.LOCATPATH + "welcome.mp4";
-                    videoView.setVideoPath(uri);
-                    videoView.setVideoURI(Uri.parse(uri));
-                    videoView.requestFocus();
-                    videoView.start();
-                    banner.setVisibility(View.GONE);
-                    welcomeRL.setVisibility(View.VISIBLE);
-                    tvWelcomeText.setText(showText);
-                    videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                        @Override
-                        public void onCompletion(MediaPlayer mp) {
-                            playNum += 1;
-                            String uri = constants.LOCATPATH + "welcome.mp4";
-                            videoView.setVideoPath(uri);
-                            videoView.requestFocus();
-                            videoView.start();
-                            if (playNum > constants.WELCOMEPLAYNUM) {
-                                videoView.stopPlayback();
-                                videoView.suspend();
-                                welcomeRL.setVisibility(View.GONE);
-                                banner.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    });
-                }
-            });
             onRemoveMsgs(R.id.init_welcome_state);
             onSendMsgDelayed(R.id.init_welcome_state, null, 1000*welcomeTime);
+        }else if (msgType.equals("ISBIRTHDAY")){
+            birthDayMsg = addBirthPeopleList(_msgDataJson);
+            playVideo(msgType);
         }
     }
 
+    private String addBirthPeopleList(MsgData __birthDataJson) {
+        boolean isInserted = false;
+        if ((birthPeopleList != null)&&(birthPeopleList.size()>0)) {
+            int idx=0;
+            for (MsgData birthDayPeopleItem:vipPeopleList){
+                if (birthDayPeopleItem.getUSERID().equals(__birthDataJson.getUSERID())){
+                    birthPeopleList.remove(birthDayPeopleItem);
+                    Log.d("birthdayMsg", "addBirthPeopleList: remove "+birthDayPeopleItem.getUSERNAME() );
+                    continue;
+                }
+                Log.d("birthdayMsg", "addBirthPeopleList: difftime is " + diffTwoDate(__birthDataJson.getVIPTIME(),birthDayPeopleItem.getBIRTHDAYSENDTIME()) );
+                if (diffTwoDate(__birthDataJson.getVIPTIME(),birthDayPeopleItem.getBIRTHDAYSENDTIME()) > welcomeTime) //大于设定好的时间
+                {
+                    birthPeopleList.remove(birthDayPeopleItem); //删除元素（后面追加）
+                    Log.d("birthdayMsg", "addBirthPeopleList: remove "+birthDayPeopleItem.getUSERNAME() + "; time :" +  birthDayPeopleItem.getBIRTHDAYSENDTIME());
+                    continue;
+                }
+            }
+        }
+        if (!isInserted) {
+            birthPeopleList.add(__birthDataJson);
+            Log.d("birthdayMsg", "addBirthPeopleList: insert " + __birthDataJson.getUSERNAME() + "; time:"+__birthDataJson.getBIRTHDAYSENDTIME());
+        }
+
+        String birthDayPeopleNameStr = "";
+        for (int i = 0; i < birthPeopleList.size(); i++) {
+            birthDayPeopleNameStr = birthDayPeopleNameStr + vipPeopleList.get(i).getUSERNAME() + "、";//只有姓名2018/10/19
+        }
+
+        if (!birthDayPeopleNameStr.equals("")) {
+            birthDayPeopleNameStr = birthDayPeopleNameStr.substring(0, birthDayPeopleNameStr.lastIndexOf("、"));
+        }
+        Log.d("birthdayMsg", "addVisitorList: msg is " + birthDayPeopleNameStr);
+        return birthDayPeopleNameStr;
+    }
+
+    public void setICBCWelcomeParam(String _welcomeMsg,
+                                int _welcomeTime,
+                                String _rollMsg,
+                                int _rollTime,
+                                String _rollMsgSendTime){
+        if (_welcomeMsg != null && !_welcomeMsg.equals("")) {
+            welcomeMsg = _welcomeMsg;
+            welcomeTime = _welcomeTime;
+        }
+        if (_welcomeMsg != null && !_welcomeMsg.equals("")){
+            rollDipTime=_rollTime;
+            rollMsg = _rollMsg;
+            rollMsgSendTime = _rollMsgSendTime;
+        }
+
+    }
+
+    private void playVideo(final String msgType){
+        playNum = 0;
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                String uri="";
+                if (msgType.equals("ISBIRTHDAY")) {
+                    uri = constants.LOCATPATH + "birthday.mp4";
+                }else {
+                    uri = constants.LOCATPATH + "welcome.mp4";
+                }
+                videoView.setVideoPath(uri);
+                videoView.setVideoURI(Uri.parse(uri));
+                videoView.requestFocus();
+                videoView.start();
+                banner.setVisibility(View.GONE);
+                if (msgType.equals("ISBIRTHDAY")){
+                    initBirthDayView();
+                    //todo 显示生日字幕
+                }else {
+                    welcomeRL.setVisibility(View.VISIBLE);
+                    tvWelcomeText.setText(showText);
+                }
+                videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        playNum += 1;
+                        String uri="";
+                        if (msgType.equals("ISBIRTHDAY")) {
+                            uri = constants.LOCATPATH + "birthday.mp4";
+                        }else {
+                            uri = constants.LOCATPATH + "welcome.mp4";
+                        }
+                        videoView.setVideoPath(uri);
+                        videoView.requestFocus();
+                        videoView.start();
+                        if (playNum >= constants.WELCOMEPLAYNUM) {
+                            videoView.stopPlayback();
+                            videoView.suspend();
+                            if (msgType.equals("ISBIRTHDAY")){
+                                //todo 隐藏生日字幕
+                                textBirthday.setVisibility(View.GONE);
+                            }else {
+                                welcomeRL.setVisibility(View.GONE);
+                            }
+                            banner.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+            }
+        });
+
+    }
 
     private void initBirthDayView() {
         textBirthday.setVisibility(View.VISIBLE);
-        textBirthday.setScrollBarSize(150);
         textBirthday.postDelayed(new Runnable() {
             @Override public void run() {
-                show();
+                birthDayTextShow();
             }
         }, 1000);
     }
 
-    private void initBottomTips() {
-        bottomTips.setVisibility(View.VISIBLE);
-        bottomTips.setScrollBarSize(100);
-        bottomTips.postDelayed(new Runnable() {
-            @Override public void run() {
-                show();
-            }
-        }, 1000);
-    }
 
     private void initView() {
-        initBirthDayView();
         initBanner();
-        initBottomTips();
         mPresenter.loadBannerData();
     }
 
-    private void show() {
+    private void birthDayTextShow() {
         textBirthday.reset();
-        bottomTips.reset();
-        ShapeRevealSample.play(textBirthday);
-        ShapeRevealSample.play1(bottomTips);
+        ShapeRevealSample shapeRevealSample = new ShapeRevealSample(birthDayMsg,"让我们为您祝福，让我们为您欢笑，" +
+                "因为今天是您的生日，我们把缀满幸福快乐和平安的祝福悄然奉送，祝您心想事成！幸福快乐！生日快乐！");
+        shapeRevealSample.play(textBirthday,getAssets());
     }
 
     public void initBanner() {
@@ -214,14 +288,13 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
                 .setImages(bannnerImgList)
                 .setImageLoader(new GlideImageLoader())
                 .start();
-
     }
 
-    private String addVisitorList(VipData __vipDataJson) {
+    private String addVisitorList(MsgData __vipDataJson) {
         boolean isInserted = false;
         if ((vipPeopleList != null)&&(vipPeopleList.size()>0)) {
             int idx=0;
-            for (VipData vipPeopleItem:vipPeopleList){
+            for (MsgData vipPeopleItem:vipPeopleList){
                 if (vipPeopleItem.getUSERID().equals(__vipDataJson.getUSERID())){
                     vipPeopleList.remove(vipPeopleItem);
                     Log.d("welcomeMsg", "addVisitorList: remove "+vipPeopleItem.getUSERNAME() );
@@ -268,23 +341,17 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         return visitorStr;
     }
 
-    public void updateBanner(List<WelcomeData.PicDataBean> picDatalist,
-                             String welMsg,
-                             int welTime) {
+    public void updateBanner(List<WelcomeData.PicDataBean> picDatalist) {
         bannnerImgList.clear();
         if (bannerPlayTime.size() > 0 && bannerPlayTime != null && !bannerPlayTime.isEmpty()) {
             bannerPlayTime.clear();
         }
-        if (welMsg != null && welMsg != "") {
-            welcomeMsg = welMsg;
-            welcomeTime = welTime;
-        }
+
         if (picDatalist != null) {
             for (WelcomeData.PicDataBean pic : picDatalist) {
                 bannnerImgList.add(constants.LOCATPATH + pic.getFileName().replace(".jpg",".jpeg"));
                 bannerPlayTime.add(pic.getDisplayTime());
             }
-
 
             runOnUiThread(new Runnable() {
                 @Override

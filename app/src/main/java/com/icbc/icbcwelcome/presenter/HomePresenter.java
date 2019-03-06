@@ -8,7 +8,7 @@ import android.widget.VideoView;
 import com.alibaba.fastjson.JSON;
 import com.icbc.icbcwelcome.config.constants;
 import com.icbc.icbcwelcome.contract.HomeContract;
-import com.icbc.icbcwelcome.json.VipData;
+import com.icbc.icbcwelcome.json.MsgData;
 import com.icbc.icbcwelcome.json.WelcomeData;
 
 import org.java_websocket.client.WebSocketClient;
@@ -25,8 +25,6 @@ import java.util.List;
 
 import it.sauronsoftware.ftp4j.FTPClient;
 import it.sauronsoftware.ftp4j.FTPDataTransferListener;
-import it.sauronsoftware.ftp4j.FTPFile;
-import it.sauronsoftware.ftp4j.FTPReply;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -41,8 +39,13 @@ public class HomePresenter implements HomeContract.Presenter {
     //更新的轮播图片列表
     private List<WelcomeData.PicDataBean> imgDataList;
     private int transferringFileCount = 0;
+
     private String welcomeMsg;
     private int welcomeTime;
+    private String rollMsg;
+    private int rollDisTime;
+    private String rollMsgSendTime;
+
 
     private WebSocketClient mSocketClient;
 
@@ -70,7 +73,7 @@ public class HomePresenter implements HomeContract.Presenter {
             transferringFileCount = transferringFileCount - 1;
             if (transferringFileCount == 0) {
                 mView.hodeLoding();
-                mView.updateBanner(imgDataList,welcomeMsg,welcomeTime);
+                mView.updateBanner(imgDataList);
             }
         }
 
@@ -83,7 +86,7 @@ public class HomePresenter implements HomeContract.Presenter {
             transferringFileCount = transferringFileCount - 1;
             if (transferringFileCount == 0) {
                 mView.hodeLoding();
-                mView.updateBanner(imgDataList,welcomeMsg,welcomeTime);
+                mView.updateBanner(imgDataList);
             }
         }
     }
@@ -123,14 +126,22 @@ public class HomePresenter implements HomeContract.Presenter {
 
                         @Override
                         public void onMessage(String message) {
+
                             Log.d("picher_log", "接收消息" + message);
                             if (message.contains("\"ISVIP\":1")) {
-                                VipData vipDataJson = JSON.parseObject(message,VipData.class);
-                                mView.popWelcomeView(vipDataJson);
-                            }else {
+                                MsgData msgDataJson = JSON.parseObject(message,MsgData.class);
+                                mView.popVideoView(msgDataJson,"ISVIP");
+                            }else if (message.contains("\"ISBIRTHDAY\":1")){
+                                MsgData msgDataJson = JSON.parseObject(message,MsgData.class);
+                                mView.popVideoView(msgDataJson,"ISBIRTHDAY");
+                            }else{
                                 WelcomeData imgDataJson = JSON.parseObject(message, WelcomeData.class);
                                 welcomeMsg = imgDataJson.getWelcomeMsg();
                                 welcomeTime = imgDataJson.getWelcomeTime();
+                                rollMsg = imgDataJson.getRollMsg();
+                                rollDisTime =imgDataJson.getRollDisTime();
+                                rollMsgSendTime = imgDataJson.getRollMsgSendTime();
+                                mView.setICBCWelcomeParam(welcomeMsg,welcomeTime,rollMsg,rollDisTime,rollMsgSendTime);
                                 imgDataList = imgDataJson.getPicData();
                                 imgDataList = sortImgDataList(imgDataList);
                                 transferringFileCount = imgDataList.size();
@@ -233,6 +244,10 @@ public class HomePresenter implements HomeContract.Presenter {
 
                 welcomeMsg = imgDataJson.getWelcomeMsg();
                 welcomeTime = imgDataJson.getWelcomeTime();
+                rollMsg =imgDataJson.getRollMsg();
+                rollDisTime =imgDataJson.getRollDisTime();
+                rollMsgSendTime = imgDataJson.getRollMsgSendTime();
+                mView.setICBCWelcomeParam(welcomeMsg,welcomeTime,rollMsg,rollDisTime,rollMsgSendTime);
                 imgDataList = imgDataJson.getPicData();
                 imgDataList = sortImgDataList(imgDataList);
                 transferringFileCount = imgDataList.size();
