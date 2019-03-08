@@ -91,9 +91,9 @@ public class ShineTextView extends TextView {
 
                             new int[]{Color.RED,
                                     Color.GRAY,
-                                    Color.YELLOW,
+                                    Color.rgb(	255,165,0),
                                     Color.RED,
-                                    Color.YELLOW,
+                                    Color.rgb(	255,215,0),
                                      }, null, Shader.TileMode.CLAMP);
 
 
@@ -124,7 +124,7 @@ public class ShineTextView extends TextView {
                 //平移效果生效
                 mLinearGradient.setLocalMatrix(mMatrix);
                 //延迟 100 毫秒再次刷新 View 也就是再次执行本 onDraw 方法
-                postInvalidateDelayed(50);
+                postInvalidateDelayed(1500);
 
             }
         }

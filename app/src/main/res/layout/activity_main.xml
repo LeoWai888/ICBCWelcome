@@ -44,18 +44,34 @@
             android:textStyle="bold"
             android:textColor="@color/font_paint_color"
             android:text="霓虹灯字体！霓虹灯字体！霓虹灯字体！"
-            android:textSize="100sp" />
+            android:textSize="100sp"
+            android:visibility="gone"/>
 
+        <su.levenetc.android.textsurface.TextSurface
+            android:id="@+id/birthday_text"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            android:layout_marginTop="250dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="30dp"
+            android:visibility="gone"/>
 
     </RelativeLayout>
 
-    <su.levenetc.android.textsurface.TextSurface
-        android:id="@+id/birthday_text"
+    <TextView
+        android:id="@+id/roll_tv"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
-        android:layout_marginTop="250dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="30dp"
-        android:visibility="gone"/>
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="30dp"
+        android:textSize="25sp"
+        android:textColor="#f00"
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:focusable="true"
+        android:scrollHorizontally="true"
+        android:focusableInTouchMode="true"
+        />
 
 </RelativeLayout>

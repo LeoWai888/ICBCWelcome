@@ -2,4 +2,6 @@
 <resources>
 <!--如果在规定的时间范围内没有新人员被捕捉，则将之前欢迎人员清空-->
   <item type="id" name="init_welcome_state" />
+  <!--如果在规定的时间范围内显示滚动消息-->
+  <item type="id" name="init_rollMsg_state" />
 </resources>

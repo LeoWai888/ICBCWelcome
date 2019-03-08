@@ -14,6 +14,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.icbc.icbcwelcome.R;
@@ -71,6 +72,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     private String showText = "";
     private int welcomeTime;
     private TextSurface textBirthday;
+    private TextView rollTextView;
 
     @Override
     public void setPresenter(HomeContract.Presenter presenter) {
@@ -114,6 +116,9 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         welcomeRL = (RelativeLayout) findViewById(R.id.welcomeRL);
         tvWelcomeText = (ShineTextView) findViewById(R.id.tvWelComeText);
         textBirthday = (TextSurface) findViewById(R.id.birthday_text);
+
+        rollTextView=(TextView)findViewById(R.id.roll_tv);
+
         AssetManager assetManager = this.getApplicationContext().getAssets();
         Typeface mtypeface = Typeface.createFromAsset(assetManager, constants.FONTTYPEFACE);
         tvWelcomeText.setTypeface(mtypeface);
@@ -143,7 +148,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
             }
 
             onRemoveMsgs(R.id.init_welcome_state);
-            onSendMsgDelayed(R.id.init_welcome_state, null, 1000*welcomeTime);
+            onSendMsgDelayed(R.id.init_welcome_state, null, 60000*welcomeTime);
         }else if (msgType.equals("ISBIRTHDAY")){
             birthDayMsg = addBirthPeopleList(_msgDataJson);
             playVideo(msgType);
@@ -154,7 +159,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         boolean isInserted = false;
         if ((birthPeopleList != null)&&(birthPeopleList.size()>0)) {
             int idx=0;
-            for (MsgData birthDayPeopleItem:vipPeopleList){
+            for (MsgData birthDayPeopleItem:birthPeopleList){
                 if (birthDayPeopleItem.getUSERID().equals(__birthDataJson.getUSERID())){
                     birthPeopleList.remove(birthDayPeopleItem);
                     Log.d("birthdayMsg", "addBirthPeopleList: remove "+birthDayPeopleItem.getUSERNAME() );
@@ -176,7 +181,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
 
         String birthDayPeopleNameStr = "";
         for (int i = 0; i < birthPeopleList.size(); i++) {
-            birthDayPeopleNameStr = birthDayPeopleNameStr + vipPeopleList.get(i).getUSERNAME() + "、";//只有姓名2018/10/19
+            birthDayPeopleNameStr = birthDayPeopleNameStr + birthPeopleList.get(i).getUSERNAME() + "、";//只有姓名2018/10/19
         }
 
         if (!birthDayPeopleNameStr.equals("")) {
@@ -195,12 +200,22 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
             welcomeMsg = _welcomeMsg;
             welcomeTime = _welcomeTime;
         }
-        if (_welcomeMsg != null && !_welcomeMsg.equals("")){
+        if (_rollMsg != null && !_rollMsg.equals("")){
             rollDipTime=_rollTime;
             rollMsg = _rollMsg;
             rollMsgSendTime = _rollMsgSendTime;
-        }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    rollTextView.setVisibility(View.VISIBLE);
+                    rollTextView.setText(rollMsg);
+                    rollTextView.setSelected(true);
+                }
+            });
+            onRemoveMsgs(R.id.init_rollMsg_state);
+            onSendMsgDelayed(R.id.init_rollMsg_state, null, 60000*rollDipTime);
 
+        }
     }
 
     private void playVideo(final String msgType){
@@ -220,11 +235,12 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
                 videoView.requestFocus();
                 videoView.start();
                 banner.setVisibility(View.GONE);
+                welcomeRL.setVisibility(View.VISIBLE);
                 if (msgType.equals("ISBIRTHDAY")){
                     initBirthDayView();
                     //todo 显示生日字幕
                 }else {
-                    welcomeRL.setVisibility(View.VISIBLE);
+                    tvWelcomeText.setVisibility(View.VISIBLE);
                     tvWelcomeText.setText(showText);
                 }
                 videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -243,11 +259,12 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
                         if (playNum >= constants.WELCOMEPLAYNUM) {
                             videoView.stopPlayback();
                             videoView.suspend();
+                            welcomeRL.setVisibility(View.GONE);
                             if (msgType.equals("ISBIRTHDAY")){
                                 //todo 隐藏生日字幕
                                 textBirthday.setVisibility(View.GONE);
                             }else {
-                                welcomeRL.setVisibility(View.GONE);
+                                tvWelcomeText.setVisibility(View.GONE);
                             }
                             banner.setVisibility(View.VISIBLE);
                         }
@@ -265,6 +282,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
                 birthDayTextShow();
             }
         }, 1000);
+        textBirthday.reset();
     }
 
 
@@ -275,9 +293,13 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
 
     private void birthDayTextShow() {
         textBirthday.reset();
-        ShapeRevealSample shapeRevealSample = new ShapeRevealSample(birthDayMsg,"让我们为您祝福，让我们为您欢笑，" +
+        ShapeRevealSample.setBirthMsg("让我们为您祝福，让我们为您欢笑，" +
                 "因为今天是您的生日，我们把缀满幸福快乐和平安的祝福悄然奉送，祝您心想事成！幸福快乐！生日快乐！");
-        shapeRevealSample.play(textBirthday,getAssets());
+        ShapeRevealSample.setBirthPeopleName(birthDayMsg);
+//        ShapeRevealSample shapeRevealSample = null;
+//        shapeRevealSample = new ShapeRevealSample(birthDayMsg,"让我们为您祝福，让我们为您欢笑，" +
+//                "因为今天是您的生日，我们把缀满幸福快乐和平安的祝福悄然奉送，祝您心想事成！幸福快乐！生日快乐！");
+        ShapeRevealSample.play(textBirthday,getAssets());
     }
 
     public void initBanner() {
@@ -403,6 +425,15 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         switch (msg.what) {
             case R.id.init_welcome_state:
                 showText = "";
+                break;
+            case R.id.init_rollMsg_state:
+                rollMsg="";
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        rollTextView.setVisibility(View.GONE);
+                    }
+                });
                 break;
         }
     }

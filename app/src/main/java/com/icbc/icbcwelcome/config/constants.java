@@ -17,10 +17,10 @@ public class constants {
 
     //initurl
     public static final String INITURL = "http://115.6.29.1:9088/servlet/com.icbc.cte.cs.servlet.WithoutSessionReqServlet?flowActionName=apiget1&action=apiget1.flowc";
-    public static final int WELCOMEPLAYNUM = 2;
+    public static final int WELCOMEPLAYNUM = 1;
 
     //欢迎字体
-    public static final String FONTTYPEFACE = "dyhb.ttf";
+    public static final String FONTTYPEFACE = "lxkjbz.ttf";
     public static final int WELCOMEVIPCOUNT = 8;
     public static final int WELCOMEMSGTYPE = 0;
     /*0 ------ 只显示姓名

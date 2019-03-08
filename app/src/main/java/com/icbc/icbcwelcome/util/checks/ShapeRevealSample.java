@@ -34,12 +34,18 @@ public class ShapeRevealSample {
 
 	private static String birthMsg;
 	private static String birthPeopleName;
-	public ShapeRevealSample(String birthPeopleName,String birthMsg) {
-		this.birthMsg = birthMsg;
-		this.birthPeopleName = birthPeopleName;
+//	public ShapeRevealSample(String birthPeopleName,String birthMsg) {
+//		this.birthMsg = birthMsg;
+//		this.birthPeopleName = birthPeopleName;
+//	}
+
+	public static void setBirthMsg(String birthMsg) {
+		ShapeRevealSample.birthMsg = birthMsg;
 	}
 
-
+	public static void setBirthPeopleName(String birthPeopleName) {
+		ShapeRevealSample.birthPeopleName = birthPeopleName;
+	}
 
 	/**
 	 * 把原始字符串分割成指定长度的字符串列表
@@ -128,11 +134,16 @@ public class ShapeRevealSample {
 
 		List<String> birthMsgList = getStrList(birthMsg, colSize);
 
-		Text textA = TextBuilder.create(addBlankForNum(birthPeopleName + "：",colSize - birthPeopleName.length())).setSize(70).setColor(Color.RED).setPaint(paint).setPosition(Align.SURFACE_CENTER).build();
-		Text textB = TextBuilder.create(birthMsgList.get(0)).setSize(40).setColor(Color.RED).setPaint(paint).setPosition(Align.BOTTOM_OF|Align.CENTER_OF , textA).build();
-		Text textC = TextBuilder.create(birthMsgList.get(1)).setSize(40).setColor(Color.RED).setPaint(paint).setPosition(Align.BOTTOM_OF|Align.CENTER_OF, textB).build();
-		Text textD = TextBuilder.create(birthMsgList.get(2)).setSize(40).setColor(Color.RED).setPaint(paint).setPosition(Align.BOTTOM_OF|Align.CENTER_OF , textC).build();
-		Text textE = TextBuilder.create(birthMsgList.get(3)).setSize(40).setColor(Color.RED).setPaint(paint).setPosition(Align.BOTTOM_OF|Align.CENTER_OF , textD).build();
+//		Text textA = TextBuilder.create(addBlankForNum(birthPeopleName + "：",colSize - birthPeopleName.length())).setPaint(paint).setColor(Color.BLACK).setSize(70).setPosition(Align.SURFACE_CENTER).build();
+//		Text textB = TextBuilder.create(birthMsgList.get(0)).setPaint(paint).setColor(Color.BLACK).setSize(40).setPosition(Align.BOTTOM_OF|Align.CENTER_OF , textA).build();
+//		Text textC = TextBuilder.create(birthMsgList.get(1)).setPaint(paint).setColor(Color.BLACK).setSize(40).setPosition(Align.BOTTOM_OF|Align.CENTER_OF, textB).build();
+//		Text textD = TextBuilder.create(birthMsgList.get(2)).setPaint(paint).setColor(Color.BLACK).setSize(40).setPosition(Align.BOTTOM_OF|Align.CENTER_OF , textC).build();
+//		Text textE = TextBuilder.create(birthMsgList.get(3)).setPaint(paint).setColor(Color.BLACK).setSize(40).setPosition(Align.BOTTOM_OF|Align.CENTER_OF , textD).build();
+		Text textA = TextBuilder.create(addBlankForNum(birthPeopleName + "：",colSize - birthPeopleName.length())).setPaint(paint).setColor(Color.WHITE).setSize(70).setPosition(Align.SURFACE_CENTER).build();
+		Text textB = TextBuilder.create(birthMsgList.get(0)).setPaint(paint).setColor(Color.WHITE).setSize(40).setPosition(Align.BOTTOM_OF|Align.CENTER_OF , textA).build();
+		Text textC = TextBuilder.create(birthMsgList.get(1)).setPaint(paint).setColor(Color.WHITE).setSize(40).setPosition(Align.BOTTOM_OF|Align.CENTER_OF, textB).build();
+		Text textD = TextBuilder.create(birthMsgList.get(2)).setPaint(paint).setColor(Color.WHITE).setSize(40).setPosition(Align.BOTTOM_OF|Align.CENTER_OF , textC).build();
+		Text textE = TextBuilder.create(birthMsgList.get(3)).setPaint(paint).setColor(Color.WHITE).setSize(40).setPosition(Align.BOTTOM_OF|Align.CENTER_OF , textD).build();
 
 		final int flash = 1500;
 
@@ -164,6 +175,7 @@ public class ShapeRevealSample {
 				Delay.duration(500)
 
 		);
+
 	}
 
 }

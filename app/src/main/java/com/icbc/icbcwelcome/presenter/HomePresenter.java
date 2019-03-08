@@ -134,7 +134,7 @@ public class HomePresenter implements HomeContract.Presenter {
                             }else if (message.contains("\"ISBIRTHDAY\":1")){
                                 MsgData msgDataJson = JSON.parseObject(message,MsgData.class);
                                 mView.popVideoView(msgDataJson,"ISBIRTHDAY");
-                            }else{
+                            }else {
                                 WelcomeData imgDataJson = JSON.parseObject(message, WelcomeData.class);
                                 welcomeMsg = imgDataJson.getWelcomeMsg();
                                 welcomeTime = imgDataJson.getWelcomeTime();
@@ -143,14 +143,17 @@ public class HomePresenter implements HomeContract.Presenter {
                                 rollMsgSendTime = imgDataJson.getRollMsgSendTime();
                                 mView.setICBCWelcomeParam(welcomeMsg,welcomeTime,rollMsg,rollDisTime,rollMsgSendTime);
                                 imgDataList = imgDataJson.getPicData();
-                                imgDataList = sortImgDataList(imgDataList);
-                                transferringFileCount = imgDataList.size();
-                                Log.d("welcomeMsg", "onMessage: welcomeMsg is" + welcomeMsg +";" +
-                                                                           "welcomeTime is " + welcomeTime + ";" +
-                                                                           "transferringFileCount is " + transferringFileCount);
-                                if (transferringFileCount>0) {
-                                    downloadFile();
+                                if ((imgDataList != null)&&(imgDataList.size()>0)) {
+                                    imgDataList = sortImgDataList(imgDataList);
+                                    transferringFileCount = imgDataList.size();
+                                    Log.d("welcomeMsg", "onMessage: welcomeMsg is" + welcomeMsg +";" +
+                                            "welcomeTime is " + welcomeTime + ";" +
+                                            "transferringFileCount is " + transferringFileCount);
+                                    if (transferringFileCount>0) {
+                                        downloadFile();
+                                    }
                                 }
+
                             }
 
                         }
@@ -244,9 +247,9 @@ public class HomePresenter implements HomeContract.Presenter {
 
                 welcomeMsg = imgDataJson.getWelcomeMsg();
                 welcomeTime = imgDataJson.getWelcomeTime();
-                rollMsg =imgDataJson.getRollMsg();
-                rollDisTime =imgDataJson.getRollDisTime();
-                rollMsgSendTime = imgDataJson.getRollMsgSendTime();
+//                rollMsg =imgDataJson.getRollMsg();
+//                rollDisTime =imgDataJson.getRollDisTime();
+//                rollMsgSendTime = imgDataJson.getRollMsgSendTime();
                 mView.setICBCWelcomeParam(welcomeMsg,welcomeTime,rollMsg,rollDisTime,rollMsgSendTime);
                 imgDataList = imgDataJson.getPicData();
                 imgDataList = sortImgDataList(imgDataList);
