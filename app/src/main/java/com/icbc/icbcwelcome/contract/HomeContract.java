@@ -13,12 +13,14 @@ public interface HomeContract {
     interface View extends BaseView<Presenter> {
         void updateBanner(List<WelcomeData.PicDataBean> picDatalist);
 
-        void popVideoView(MsgData msgDataJson,String msgType);
+        void popVideoView(MsgData msgDataJson, String msgType);
         void setICBCWelcomeParam(String _welcomeMsg,
                                  int _welcomeTime,
                                  String _rollMsg,
                                  int _rollTime,
                                  String _rollMsgSendTime);
+        void initVideo();
+
     }
 
     interface Presenter extends BasePresenter {

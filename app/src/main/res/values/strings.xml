@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">ICBCWelcome</string>
+    
+    <string name="blessings_1">
+        花朝月夕，如诗如画；在这个真正属于你的日子里，愿你拥抱未来，愿你的容颜像春天般绚烂。生日快乐！
+    </string>
+    <string name="blessings_2">
+        “生日是谁，它快不快乐有什么要紧的。在这个世界上，我希望你是快乐的。都自由，都拥有。”
+    </string>
+    <string name="blessings_3">
+        今天是您的生日，愿所有的快乐、所有的幸福、所有的温馨、所有的好运围绕在您身边。生日快乐!
+    </string>
+    <string name="blessings_4">
+        当我把神灯擦三下后，灯神问我想许什么愿?我说：我想你帮我保佑一个正在看短信的人，希望那人生日快乐，永远幸福。
+    </string>
+    <string name="blessings_5">
+        在你生日来临之际，祝事业正当午，身体壮如虎，金钱不胜数，干活不辛苦，悠闲像老鼠，浪漫似乐谱，快乐莫你属!
+    </string>
+    <string name="blessings_6">
+        主银，我是麻麻精心准备的生日祝福大礼包，我现在可牛气了呢，我手下统率着幸福一世、快乐一生、平安幸福到永远、健康百分百、讨人喜欢等好多祝福，麻麻说从此以后我就归你领导了，让我好好照顾你，祝你生日快乐！
+    </string>
 </resources>

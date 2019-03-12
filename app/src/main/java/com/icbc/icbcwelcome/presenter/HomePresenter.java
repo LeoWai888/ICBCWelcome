@@ -126,7 +126,7 @@ public class HomePresenter implements HomeContract.Presenter {
 
                         @Override
                         public void onMessage(String message) {
-
+                            mView.initVideo();
                             Log.d("picher_log", "接收消息" + message);
                             if (message.contains("\"ISVIP\":1")) {
                                 MsgData msgDataJson = JSON.parseObject(message,MsgData.class);

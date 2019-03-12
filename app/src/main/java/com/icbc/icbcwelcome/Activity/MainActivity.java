@@ -19,8 +19,10 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.icbc.icbcwelcome.R;
 import com.icbc.icbcwelcome.base.BaseActivity;
+import com.icbc.icbcwelcome.config.bgPrama;
 import com.icbc.icbcwelcome.config.constants;
 import com.icbc.icbcwelcome.contract.HomeContract;
+import com.icbc.icbcwelcome.json.FestivalListBean;
 import com.icbc.icbcwelcome.json.MsgData;
 import com.icbc.icbcwelcome.json.WelcomeData;
 import com.icbc.icbcwelcome.presenter.HomePresenter;
@@ -41,7 +43,6 @@ import dmax.dialog.SpotsDialog;
 import su.levenetc.android.textsurface.TextSurface;
 
 public class MainActivity extends BaseActivity implements HomeContract.View {
-
 
     private class GlideImageLoader extends ImageLoader {
         @Override
@@ -73,7 +74,11 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     private int welcomeTime;
     private TextSurface textBirthday;
     private TextView rollTextView;
-
+    private bgPrama BgPrama;
+    private String VideoPath;           //节日祝福视频路径
+    private String VideoContextColor;  //节日祝福内容字体颜色
+    private String VideoContextfont;  //节日祝福内容字体
+    private FestivalListBean VideoBean;
     @Override
     public void setPresenter(HomeContract.Presenter presenter) {
         this.mPresenter = presenter;
@@ -106,7 +111,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);   //连FTP测试
+        setContentView(R.layout.activity_main);
 
         mDialog = new SpotsDialog(this);
         mDialog.getWindow().setGravity(Gravity.CENTER);
@@ -129,11 +134,20 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         welcomeTime = 10;
         welcomeMsg = "热烈欢迎XXX莅临我部指导工作";
         initView();
+//        initVideo();
         mPresenter.initWebSocket();
         Log.d("welcomeMsg", "onCreate: " + vipPeopleList.size());
     }
 
-
+    public void initVideo()
+    {
+        //初始化节日视频背景、字体、字体颜色
+        BgPrama=new bgPrama(this);
+        VideoBean=BgPrama.bgPramaSetting(constants.LOCATPATH + "Static/birthday/");
+        VideoPath=VideoBean.getMVPath();
+        VideoContextColor=VideoBean.getTxtColor();
+        VideoContextfont=VideoBean.getFontsPath();
+    }
 
     /*欢迎屏弹出欢迎视频，播放次数可以参数化控制*/
     public void popVideoView(MsgData _msgDataJson,String msgType) {
@@ -220,15 +234,16 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
 
     private void playVideo(final String msgType){
         playNum = 0;
-
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 String uri="";
                 if (msgType.equals("ISBIRTHDAY")) {
-                    uri = constants.LOCATPATH + "birthday.mp4";
+                    uri=VideoPath;
+                    Log.e("video uri: ",uri);
                 }else {
-                    uri = constants.LOCATPATH + "welcome.mp4";
+                    uri = constants.LOCATPATH + "Static/welcome.mp4";
+                    Log.e("video uri: ",uri);
                 }
                 videoView.setVideoPath(uri);
                 videoView.setVideoURI(Uri.parse(uri));
@@ -249,9 +264,9 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
                         playNum += 1;
                         String uri="";
                         if (msgType.equals("ISBIRTHDAY")) {
-                            uri = constants.LOCATPATH + "birthday.mp4";
+                            uri = VideoPath;
                         }else {
-                            uri = constants.LOCATPATH + "welcome.mp4";
+                            uri = constants.LOCATPATH + "Static/welcome.mp4";
                         }
                         videoView.setVideoPath(uri);
                         videoView.requestFocus();
@@ -293,17 +308,18 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
 
     private void birthDayTextShow() {
         textBirthday.reset();
-        ShapeRevealSample.setBirthMsg("让我们为您祝福，让我们为您欢笑，" +
-                "因为今天是您的生日，我们把缀满幸福快乐和平安的祝福悄然奉送，祝您心想事成！幸福快乐！生日快乐！");
+//        ShapeRevealSample.setBirthMsg("让我们为您祝福，让我们为您欢笑，" +
+//                "因为今天是您的生日，我们把缀满幸福快乐和平安的祝福悄然奉送，祝您心想事成！幸福快乐！生日快乐！");
+        ShapeRevealSample.setBirthMsg();
         ShapeRevealSample.setBirthPeopleName(birthDayMsg);
 //        ShapeRevealSample shapeRevealSample = null;
 //        shapeRevealSample = new ShapeRevealSample(birthDayMsg,"让我们为您祝福，让我们为您欢笑，" +
 //                "因为今天是您的生日，我们把缀满幸福快乐和平安的祝福悄然奉送，祝您心想事成！幸福快乐！生日快乐！");
-        ShapeRevealSample.play(textBirthday,getAssets());
+        ShapeRevealSample.play(textBirthday,getAssets(),VideoContextfont,VideoContextColor);
     }
 
     public void initBanner() {
-        bannnerImgList.add(constants.LOCATPATH + "loading.jpeg");
+        bannnerImgList.add(constants.LOCATPATH + "Static/loading.jpeg");
 //        Toast.makeText(this,getApplicationContext().getFilesDir().getAbsolutePath(),Toast.LENGTH_LONG).show();;
         banner.setBannerStyle(BannerConfig.NOT_INDICATOR);
         banner.setDelayTime(5000)
