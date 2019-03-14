@@ -151,10 +151,10 @@ public class ShapeRevealSample {
 //		Text textD = TextBuilder.create(birthMsgList.get(2)).setPaint(paint).setColor(Color.BLACK).setSize(40).setPosition(Align.BOTTOM_OF|Align.CENTER_OF , textC).build();
 //		Text textE = TextBuilder.create(birthMsgList.get(3)).setPaint(paint).setColor(Color.BLACK).setSize(40).setPosition(Align.BOTTOM_OF|Align.CENTER_OF , textD).build();
 		Text textA = TextBuilder.create(addBlankForNum(birthPeopleName + "：",colSize - birthPeopleName.length())).setPaint(paint).setColor(Color.parseColor(selectColor(txtColor))).setSize(70).setPosition(Align.SURFACE_CENTER).build();
-		Text textB = TextBuilder.create(birthMsgList.get(0)).setPaint(paint).setColor(Color.parseColor(selectColor(txtColor))).setSize(40).setPosition(Align.BOTTOM_OF|Align.CENTER_OF , textA).build();
-		Text textC = TextBuilder.create(birthMsgList.get(1)).setPaint(paint).setColor(Color.parseColor(selectColor(txtColor))).setSize(40).setPosition(Align.BOTTOM_OF|Align.CENTER_OF, textB).build();
-		Text textD = TextBuilder.create(birthMsgList.get(2)).setPaint(paint).setColor(Color.parseColor(selectColor(txtColor))).setSize(40).setPosition(Align.BOTTOM_OF|Align.CENTER_OF , textC).build();
-		Text textE = TextBuilder.create(birthMsgList.get(3)).setPaint(paint).setColor(Color.parseColor(selectColor(txtColor))).setSize(40).setPosition(Align.BOTTOM_OF|Align.CENTER_OF , textD).build();
+		Text textB = TextBuilder.create(birthMsgList.get(0)).setPaint(paint).setColor(Color.parseColor(selectColor(txtColor))).setSize(45).setPosition(Align.BOTTOM_OF|Align.CENTER_OF , textA).build();
+		Text textC = TextBuilder.create(birthMsgList.get(1)).setPaint(paint).setColor(Color.parseColor(selectColor(txtColor))).setSize(45).setPosition(Align.BOTTOM_OF|Align.CENTER_OF, textB).build();
+		Text textD = TextBuilder.create(birthMsgList.get(2)).setPaint(paint).setColor(Color.parseColor(selectColor(txtColor))).setSize(45).setPosition(Align.BOTTOM_OF|Align.CENTER_OF , textC).build();
+		Text textE = TextBuilder.create(birthMsgList.get(3)).setPaint(paint).setColor(Color.parseColor(selectColor(txtColor))).setSize(45).setPosition(Align.BOTTOM_OF|Align.CENTER_OF , textD).build();
 //		Text textB = TextBuilder.create(birthMsgList.get(0)).setPaint(paint).setColor(Color.parseColor(selectColor(txtColor))).setSize(40).setPosition(Align.BOTTOM_OF|Align.CENTER_OF , textA).build();
 
 

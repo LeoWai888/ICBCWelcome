@@ -74,6 +74,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     private int welcomeTime;
     private TextSurface textBirthday;
     private TextView rollTextView;
+    private RelativeLayout rollRL;
     private bgPrama BgPrama;
     private String VideoPath;           //节日祝福视频路径
     private String VideoContextColor;  //节日祝福内容字体颜色
@@ -123,6 +124,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         textBirthday = (TextSurface) findViewById(R.id.birthday_text);
 
         rollTextView=(TextView)findViewById(R.id.roll_tv);
+        rollRL=(RelativeLayout)findViewById(R.id.roll_Rl);
 
         AssetManager assetManager = this.getApplicationContext().getAssets();
         Typeface mtypeface = Typeface.createFromAsset(assetManager, constants.FONTTYPEFACE);
@@ -221,6 +223,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    rollRL.setVisibility(View.VISIBLE);
                     rollTextView.setVisibility(View.VISIBLE);
                     rollTextView.setText(rollMsg);
                     rollTextView.setSelected(true);
@@ -447,6 +450,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        rollRL.setVisibility(View.GONE);
                         rollTextView.setVisibility(View.GONE);
                     }
                 });

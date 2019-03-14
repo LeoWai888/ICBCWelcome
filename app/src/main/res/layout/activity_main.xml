@@ -51,27 +51,37 @@
             android:id="@+id/birthday_text"
             android:layout_width="match_parent"
             android:layout_height="600dp"
-            android:layout_marginTop="250dp"
+            android:layout_marginTop="220dp"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:visibility="gone"/>
 
     </RelativeLayout>
 
-    <TextView
-        android:id="@+id/roll_tv"
+    <RelativeLayout
+        android:id="@+id/roll_Rl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="30dp"
-        android:textSize="25sp"
-        android:textColor="#f00"
-        android:singleLine="true"
-        android:ellipsize="marquee"
-        android:marqueeRepeatLimit="marquee_forever"
-        android:focusable="true"
-        android:scrollHorizontally="true"
-        android:focusableInTouchMode="true"
-        />
+        android:background="#908b8b78"
+        android:visibility="gone"
+        >
+        <TextView
+            android:id="@+id/roll_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:textSize="30sp"
+            android:textColor="#f00"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:focusable="true"
+            android:scrollHorizontally="true"
+            android:focusableInTouchMode="true"
+            />
+    </RelativeLayout>
+
 
 </RelativeLayout>
