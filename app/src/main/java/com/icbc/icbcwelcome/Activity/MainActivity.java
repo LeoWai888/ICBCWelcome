@@ -255,9 +255,11 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
                 banner.setVisibility(View.GONE);
                 welcomeRL.setVisibility(View.VISIBLE);
                 if (msgType.equals("ISBIRTHDAY")){
+                    tvWelcomeText.setVisibility(View.GONE);
                     initBirthDayView();
                     //todo 显示生日字幕
                 }else {
+                    textBirthday.setVisibility(View.GONE);
                     tvWelcomeText.setVisibility(View.VISIBLE);
                     tvWelcomeText.setText(showText);
                 }
@@ -294,6 +296,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     }
 
     private void initBirthDayView() {
+        tvWelcomeText.setVisibility(View.GONE);
         textBirthday.setVisibility(View.VISIBLE);
         textBirthday.postDelayed(new Runnable() {
             @Override public void run() {
