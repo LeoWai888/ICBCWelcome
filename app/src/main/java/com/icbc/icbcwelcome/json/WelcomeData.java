@@ -5,7 +5,7 @@ import java.util.List;
 public class WelcomeData {
 
     /**
-     * picData : [{"fileName":"测试图片4.jpg","displayTime":5,"displayOrder":4},{"fileName":"测试图片3.jpg","displayTime":5,"displayOrder":3},{"fileName":"测试图片2.jpg","displayTime":10,"displayOrder":2},{"fileName":"测试图片1.jpg","displayTime":11,"displayOrder":1}]
+     * picData : [{"fileName":"测试图片4.jpg","displayTime":5,playType:"1","displayOrder":4},{"fileName":"测试图片3.jpg","displayTime":5,playType:"1","displayOrder":3},{"fileName":"测试图片2.jpg","displayTime":10,playType:"1","displayOrder":2},{"fileName":"测试图片1.jpg","displayTime":11,"displayOrder":1}]
      * welcomeMsg : 欢迎XXX光临
      * welcomeTime : 30
      */
@@ -74,7 +74,11 @@ public class WelcomeData {
 
         private String fileName;
         private int displayTime;
+        private String playType;   //playTime:0是日常播放、1是插播、2是只播
+        private String startTime;   //具体时间到分钟  2019-05-23 00：00,日常播放时间默认为00：00
+        private String endTime;     //具体时间到分钟  2019-05-23 00：00,日常播放时间默认为00：00
         private int displayOrder;
+
 
         public String getFileName() {
             return fileName;
@@ -90,6 +94,30 @@ public class WelcomeData {
 
         public void setDisplayTime(int displayTime) {
             this.displayTime = displayTime;
+        }
+
+        public String getPlayType() {
+            return playType;
+        }
+
+        public void setPlayType(String playType) {
+            this.playType = playType;
+        }
+
+        public String getEndTime() {
+            return endTime;
+        }
+
+        public void setEndTime(String endTime) {
+            this.endTime = endTime;
+        }
+
+        public String getStartTime() {
+            return startTime;
+        }
+
+        public void setStartTime(String startTime) {
+            this.startTime = startTime;
         }
 
         public int getDisplayOrder() {

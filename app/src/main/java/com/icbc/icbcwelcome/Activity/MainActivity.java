@@ -34,6 +34,7 @@ import com.youth.banner.BannerConfig;
 import com.youth.banner.loader.ImageLoader;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,6 +42,7 @@ import java.util.List;
 
 import dmax.dialog.SpotsDialog;
 import su.levenetc.android.textsurface.TextSurface;
+
 
 public class MainActivity extends BaseActivity implements HomeContract.View {
 
@@ -61,6 +63,9 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     private AlertDialog mDialog;//等待对话框
     private List<String> bannnerImgList;
     private List<Integer> bannerPlayTime;
+    private List<String> bannerStartTime;
+    private List<String> bannerEndTime;
+    private List<String> bannerPlayType;  //0:日常播，1：插播，2：只播放
     private List<MsgData> vipPeopleList;
     private List<MsgData> birthPeopleList;
     private HomeContract.Presenter mPresenter;
@@ -80,9 +85,55 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     private String VideoContextColor;  //节日祝福内容字体颜色
     private String VideoContextfont;  //节日祝福内容字体
     private FestivalListBean VideoBean;
+    private long time;  //系统当前时间
+    private List<WelcomeData.PicDataBean> tempDatalist;
     @Override
     public void setPresenter(HomeContract.Presenter presenter) {
         this.mPresenter = presenter;
+    }
+
+    //时刻循环
+    public class TimeThread extends  Thread{
+        @Override
+        public void run(){
+            time=0L;
+            do{
+                time=System.currentTimeMillis();
+                if (tempDatalist != null) {
+                    List<String> threadImgList=new ArrayList<>();
+                    List<Integer> threadPlayTime=new ArrayList<>();
+                    List<String> threadStartTime=new ArrayList<>();
+                    List<String> threadEndTime=new ArrayList<>();
+                    List<String> threadPlayType=new ArrayList<>();
+                    for (WelcomeData.PicDataBean pic : tempDatalist) {
+                        threadImgList.add(constants.LOCATPATH + pic.getFileName().replace(".jpg",".jpeg"));
+                        threadPlayTime.add(pic.getDisplayTime());
+                        threadStartTime.add(pic.getStartTime());
+                        threadEndTime.add(pic.getEndTime());
+                        threadPlayType.add(pic.getPlayType());
+                    }
+//                    Log.e("transForm00:","threadPlayType.size():"+threadPlayType.size()+" / threadStartTime.size:"+threadPlayType.size()+"  /bannerEndTime.size"+threadPlayType.size());
+                    for(int j=0;j<threadPlayType.size();j++)
+                    {
+                        if(!threadPlayType.get(j).equals("0")){  //非日常
+                            long startTime = transTimeForm(threadStartTime.get(j));
+                            long endTime = transTimeForm(threadEndTime.get(j));
+//                            Log.e("time:", "startTime:"+startTime+"  /time:"+time+"  /endTime:"+endTime);
+                            if((startTime < time) && (time < startTime+10) ){
+                                updateBanner(tempDatalist);
+                                Log.e("enter:","start");
+                            }
+
+                            if((endTime< time) && (time < endTime+10) ){
+                                updateBanner(tempDatalist);
+                                Log.e("enter:","end");
+                            }
+                        }
+                    }
+//
+                }
+            }while (true);
+        }
     }
 
     @Override
@@ -90,7 +141,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Log.d("ICBCWelcome", "mDialog.show()");
+//                Log.d("ICBCWelcome", "mDialog.show()");
                 mDialog.show();
             }
         });
@@ -101,7 +152,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Log.d("ICBCWelcome", "mDialog.dismiss()");
+//                Log.d("ICBCWelcome", "mDialog.dismiss()");
                 mDialog.dismiss();
             }
         });
@@ -114,6 +165,7 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        time=System.currentTimeMillis();
         mDialog = new SpotsDialog(this);
         mDialog.getWindow().setGravity(Gravity.CENTER);
         mPresenter = new HomePresenter(this);
@@ -131,6 +183,9 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         tvWelcomeText.setTypeface(mtypeface);
         bannnerImgList = new ArrayList<>();
         bannerPlayTime = new ArrayList<>();
+        bannerStartTime=new ArrayList<>();
+        bannerEndTime=new ArrayList<>();
+        bannerPlayType=new ArrayList<>();
         vipPeopleList = new ArrayList<>();
         birthPeopleList = new ArrayList<>();
         welcomeTime = 10;
@@ -138,7 +193,12 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         initView();
 //        initVideo();
         mPresenter.initWebSocket();
-        Log.d("welcomeMsg", "onCreate: " + vipPeopleList.size());
+//        Log.d("welcomeMsg", "onCreate: " + vipPeopleList.size());
+        startMinuteThread();
+    }
+
+    private void startMinuteThread() {
+        new TimeThread().start();
     }
 
     public void initVideo()
@@ -153,13 +213,13 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
 
     /*欢迎屏弹出欢迎视频，播放次数可以参数化控制*/
     public void popVideoView(MsgData _msgDataJson,String msgType) {
-        Log.d("welcomeMsg", "welcomeMsg: " + welcomeMsg);
+//        Log.d("welcomeMsg", "welcomeMsg: " + welcomeMsg);
 
         if (msgType.equals("ISVIP")){
             String vipPeople = addVisitorList(_msgDataJson);
             if (!showText.equals(welcomeMsg.replace("XXX", vipPeople))) {
                 showText = welcomeMsg.replace("XXX", vipPeople);
-                Log.d("welcomeMsg", "showText: " + showText);
+//                Log.d("welcomeMsg", "showText: " + showText);
                 playVideo(msgType);
             }
 
@@ -178,21 +238,21 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
             for (MsgData birthDayPeopleItem:birthPeopleList){
                 if (birthDayPeopleItem.getUSERID().equals(__birthDataJson.getUSERID())){
                     birthPeopleList.remove(birthDayPeopleItem);
-                    Log.d("birthdayMsg", "addBirthPeopleList: remove "+birthDayPeopleItem.getUSERNAME() );
+//                    Log.d("birthdayMsg", "addBirthPeopleList: remove "+birthDayPeopleItem.getUSERNAME() );
                     continue;
                 }
-                Log.d("birthdayMsg", "addBirthPeopleList: difftime is " + diffTwoDate(__birthDataJson.getVIPTIME(),birthDayPeopleItem.getBIRTHDAYSENDTIME()) );
+//                Log.d("birthdayMsg", "addBirthPeopleList: difftime is " + diffTwoDate(__birthDataJson.getVIPTIME(),birthDayPeopleItem.getBIRTHDAYSENDTIME()) );
                 if (diffTwoDate(__birthDataJson.getVIPTIME(),birthDayPeopleItem.getBIRTHDAYSENDTIME()) > welcomeTime) //大于设定好的时间
                 {
                     birthPeopleList.remove(birthDayPeopleItem); //删除元素（后面追加）
-                    Log.d("birthdayMsg", "addBirthPeopleList: remove "+birthDayPeopleItem.getUSERNAME() + "; time :" +  birthDayPeopleItem.getBIRTHDAYSENDTIME());
+//                    Log.d("birthdayMsg", "addBirthPeopleList: remove "+birthDayPeopleItem.getUSERNAME() + "; time :" +  birthDayPeopleItem.getBIRTHDAYSENDTIME());
                     continue;
                 }
             }
         }
         if (!isInserted) {
             birthPeopleList.add(__birthDataJson);
-            Log.d("birthdayMsg", "addBirthPeopleList: insert " + __birthDataJson.getUSERNAME() + "; time:"+__birthDataJson.getBIRTHDAYSENDTIME());
+//            Log.d("birthdayMsg", "addBirthPeopleList: insert " + __birthDataJson.getUSERNAME() + "; time:"+__birthDataJson.getBIRTHDAYSENDTIME());
         }
 
         String birthDayPeopleNameStr = "";
@@ -203,15 +263,15 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
         if (!birthDayPeopleNameStr.equals("")) {
             birthDayPeopleNameStr = birthDayPeopleNameStr.substring(0, birthDayPeopleNameStr.lastIndexOf("、"));
         }
-        Log.d("birthdayMsg", "addVisitorList: msg is " + birthDayPeopleNameStr);
+//        Log.d("birthdayMsg", "addVisitorList: msg is " + birthDayPeopleNameStr);
         return birthDayPeopleNameStr;
     }
 
     public void setICBCWelcomeParam(String _welcomeMsg,
-                                int _welcomeTime,
-                                String _rollMsg,
-                                int _rollTime,
-                                String _rollMsgSendTime){
+                                    int _welcomeTime,
+                                    String _rollMsg,
+                                    int _rollTime,
+                                    String _rollMsgSendTime){
         if (_welcomeMsg != null && !_welcomeMsg.equals("")) {
             welcomeMsg = _welcomeMsg;
             welcomeTime = _welcomeTime;
@@ -255,11 +315,9 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
                 banner.setVisibility(View.GONE);
                 welcomeRL.setVisibility(View.VISIBLE);
                 if (msgType.equals("ISBIRTHDAY")){
-                    tvWelcomeText.setVisibility(View.GONE);
                     initBirthDayView();
                     //todo 显示生日字幕
                 }else {
-                    textBirthday.setVisibility(View.GONE);
                     tvWelcomeText.setVisibility(View.VISIBLE);
                     tvWelcomeText.setText(showText);
                 }
@@ -296,7 +354,6 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     }
 
     private void initBirthDayView() {
-        tvWelcomeText.setVisibility(View.GONE);
         textBirthday.setVisibility(View.VISIBLE);
         textBirthday.postDelayed(new Runnable() {
             @Override public void run() {
@@ -386,40 +443,136 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
     }
 
     public void updateBanner(List<WelcomeData.PicDataBean> picDatalist) {
+        tempDatalist=picDatalist;
         bannnerImgList.clear();
         if (bannerPlayTime.size() > 0 && bannerPlayTime != null && !bannerPlayTime.isEmpty()) {
             bannerPlayTime.clear();
+        }
+        if (bannerStartTime.size() > 0 && bannerStartTime != null && !bannerStartTime.isEmpty()) {
+            bannerStartTime.clear();
+        }
+        if (bannerEndTime.size() > 0 && bannerEndTime != null && !bannerEndTime.isEmpty()) {
+            bannerEndTime.clear();
+        }
+        if (bannerPlayType.size() > 0 && bannerPlayType != null && !bannerPlayType.isEmpty()) {
+            bannerPlayType.clear();
         }
 
         if (picDatalist != null) {
             for (WelcomeData.PicDataBean pic : picDatalist) {
                 bannnerImgList.add(constants.LOCATPATH + pic.getFileName().replace(".jpg",".jpeg"));
                 bannerPlayTime.add(pic.getDisplayTime());
+                bannerStartTime.add(pic.getStartTime());
+                bannerEndTime.add(pic.getEndTime());
+                bannerPlayType.add(pic.getPlayType());
             }
+            Log.e("transForm001:","bannerPlayType.size():"+bannerPlayType.size()+" / bannerStartTime.size:"+bannerStartTime.size()+"  /bannerEndTime.size"+bannerEndTime.size());
 
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    banner.setBannerStyle(BannerConfig.NOT_INDICATOR);
-                    banner.setDelayTime(bannerPlayTime.get(0) * 1000)
-                            .setImages(bannnerImgList)
-                            .setImageLoader(new GlideImageLoader())
-                            .start();
-                    banner.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-                        @Override
-                        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                        }
+                    List<String> tempImgList = bannnerImgList;
+                    List<Integer> tempPlayTime = bannerPlayTime;
+                    List<String> tempStartTime = bannerStartTime;
+                    List<String> tempEndTime = bannerEndTime;
+                    List<String> tempPlayType = bannerPlayType;
 
-                        @Override
-                        public void onPageSelected(int position) {
-                            Log.d("onPageSelected", String.valueOf(bannerPlayTime.get(position) * 1000));
-                            banner.setDelayTime(bannerPlayTime.get(position) * 1000);
-                        }
+                    //只播存放区
+                    List<String> advanceImgList = new ArrayList<>();
+                    List<Integer> advancePlayTime = new ArrayList<>();
+                    List<String> advanceStartTime = new ArrayList<>();
+                    List<String> advanceEndTime = new ArrayList<>();
+                    List<String> advancePlayType = new ArrayList<>();
 
-                        @Override
-                        public void onPageScrollStateChanged(int state) {
+                    for (int position = 0; position < tempPlayTime.size(); position++) {
+                        if (tempPlayType.get(position).equals("0")) {
+                            //日常播放
+                        } else {
+                            //非日常播放
+                            long startTime = transTimeForm(tempStartTime.get(position));
+                            long endTime = transTimeForm(tempEndTime.get(position));
+                            if (time < startTime) {
+                                //未到播放时间
+                                tempImgList.remove(position);
+                                tempPlayTime.remove(position);
+                                tempEndTime.remove(position);
+                                tempStartTime.remove(position);
+                                tempPlayType.remove(position);
+                                position = position - 1;
+                                //                                return;
+                            } else {
+                                if (time < endTime) {
+                                    //在播放时间内
+                                    if (tempPlayType.get(position).equals("2")) {
+                                        //只播
+                                        advanceImgList.add(tempImgList.get(position));
+                                        advancePlayTime.add(tempPlayTime.get(position));
+                                        advanceStartTime.add(tempStartTime.get(position));
+                                        advanceEndTime.add(tempEndTime.get(position));
+                                        advancePlayType.add(tempPlayType.get(position));
+                                        Log.e("advance:", tempPlayTime.get(position)+"/"+tempImgList.get(position)+" /"+tempStartTime.get(position)+" /"+tempEndTime.get(position)+" /"+tempPlayType.get(position));
+
+                                        tempImgList.remove(position);
+                                        tempPlayTime.remove(position);
+                                        tempEndTime.remove(position);
+                                        tempStartTime.remove(position);
+                                        tempPlayType.remove(position);
+                                        position = position - 1;
+
+
+                                    } else if (tempPlayType.get(position).equals("1")) {
+                                        //插播
+                                    }
+                                } else {
+                                    //超出播放时间
+                                    tempImgList.remove(position);
+                                    tempPlayTime.remove(position);
+                                    tempEndTime.remove(position);
+                                    tempStartTime.remove(position);
+                                    tempPlayType.remove(position);
+                                    position = position - 1;
+                                }
+                            }
                         }
-                    });
+                    }
+
+                    if(!advanceImgList.isEmpty()){
+                        tempImgList.clear();
+                        tempPlayTime.clear();
+                        tempEndTime.clear();
+                        tempStartTime.clear();
+                        tempPlayType.clear();
+                        Log.e("transForm00111:","advanceImgList.size():"+advanceImgList.size()+" / advancePlayTime.size:"+advancePlayTime.size()+"  /advanceStartTime.size"+advanceStartTime.size());
+
+                        tempImgList=advanceImgList;
+                        tempPlayTime=advancePlayTime;
+                        tempEndTime=advanceEndTime;
+                        tempStartTime=advanceStartTime;
+                        tempPlayType=advancePlayType;
+
+                    }
+                    Log.e("transForm0012:","tempPlayType.size():"+tempPlayType.size()+" / tempStartTime.size:"+tempStartTime.size()+"  /tempEndTime.size"+tempEndTime.size());
+
+                    if(!tempPlayTime.isEmpty()){
+                        banner.setBannerStyle(BannerConfig.NOT_INDICATOR);
+                        banner.setDelayTime(tempPlayTime.get(0) * 1000).setImages(tempImgList).setImageLoader(new GlideImageLoader()).start();
+                        final List<Integer> finalTempPlayTime = tempPlayTime;
+                        banner.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {   //滑动监听
+                            @Override
+                            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                            }
+
+                            @Override
+                            public void onPageSelected(int position) {
+                                banner.setDelayTime(finalTempPlayTime.get(position) * 1000);
+                            }
+
+                            @Override
+                            public void onPageScrollStateChanged(int state) {
+                            }
+
+                        });
+                    }
                 }
             });
         }
@@ -440,6 +593,20 @@ public class MainActivity extends BaseActivity implements HomeContract.View {
             return 0;
         }
     }
+
+    private long transTimeForm(String t){
+        SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        long tempTime=0L;
+        try{
+            tempTime=format.parse(t).getTime();
+        }
+        catch (ParseException e)
+        {
+            e.printStackTrace();
+        }
+        return tempTime;
+    }
+
 
     @Override
     protected void onMsgResult(Message msg) {
