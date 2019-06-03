@@ -241,9 +241,10 @@ public class HomePresenter implements HomeContract.Presenter {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String responseStr = response.body().string();
+                String responseStr = response.body().string();  //playTime:0是日常播放、1是插播、2是只播
+                String tempResponseStr="{'picData':[{'fileName':'2019052460136.三级保障.jpg','displayTime':10,'startTime':'00:00','endTime':'00:00','playType':'0','displayOrder':2},{'fileName':'2019052144834.全国金融五一劳动奖章（范小钢）.jpg','displayTime':10,'startTime':'2019-05-31 17:55','endTime':'2019-06-30 18:34','playType':'1','displayOrder':1},{'fileName':'201905292310.林伟退休.jpg','displayTime':10,'startTime':'2019-05-31 17:55','endTime':'2019-6-01 18:35','playType':'2','displayOrder':3}],'welcomeMsg':'热烈欢迎保卫部XXX总经理莅临我部指导','welcomeTime':2,'vipSendTime':'2019-04-24 09:40:05','msgSendTime':'2019-05-29 17:45:50','rollMsgSendTime':'2019-05-23 14:40:51','rollDisTime':12,'rollMsg':'架构师交流培训系列之 融e行业务群组拆分实践（5月23日周四 18：20开始）（金融科技部五楼视频会议室）'}";
                 Log.d("ICBCWelcome", "onResponse: " + responseStr);
-                WelcomeData imgDataJson = JSON.parseObject(responseStr, WelcomeData.class);
+                WelcomeData imgDataJson = JSON.parseObject(tempResponseStr, WelcomeData.class);  //生产网将tempResponseStr改为responseStr
 
                 welcomeMsg = imgDataJson.getWelcomeMsg();
                 welcomeTime = imgDataJson.getWelcomeTime();
